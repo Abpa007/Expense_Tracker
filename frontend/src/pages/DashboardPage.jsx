@@ -1,90 +1,64 @@
 import React, { useEffect } from "react";
-import { useDispatch, useSelector } from "react-redux";
-import { getExpenses } from "../features/expenses/expenseSlice";
-import {
-  PieChart,
-  Pie,
-  Cell,
-  Tooltip,
-  Legend,
-  ResponsiveContainer,
-} from "recharts";
-import Loader from "../components/Loader";
+import { useSelector, useDispatch } from "react-redux";
+import { fetchExpenses } from "../features/expenses/expenseSlice";
+import { useNavigate } from "react-router-dom";
+import { PieChart, Pie, Cell, Tooltip, ResponsiveContainer } from "recharts";
 
 const DashboardPage = () => {
   const dispatch = useDispatch();
+  const navigate = useNavigate();
+  const { user } = useSelector((state) => state.auth);
   const { expenses, loading, error } = useSelector((state) => state.expenses);
 
   useEffect(() => {
-    dispatch(getExpenses());
-  }, [dispatch]);
-
-  // Calculate totals
-  const totalExpenses = expenses.reduce(
-    (acc, expense) => acc + expense.amount,
-    0
-  );
-
-  // Prepare category-wise data for PieChart
-  const categoryData = expenses.reduce((acc, expense) => {
-    const existing = acc.find((item) => item.name === expense.category);
-    if (existing) {
-      existing.value += expense.amount;
+    if (!user) {
+      navigate("/login");
     } else {
-      acc.push({ name: expense.category, value: expense.amount });
+      dispatch(fetchExpenses());
     }
-    return acc;
-  }, []);
+  }, [dispatch, navigate, user]);
 
-  const COLORS = [
-    "#0088FE",
-    "#00C49F",
-    "#FFBB28",
-    "#FF8042",
-    "#A020F0",
-    "#FF6666",
+  const total = expenses.reduce((acc, expense) => acc + expense.amount, 0);
+
+  const data = [
+    { name: "Food", value: expenses.filter((e) => e.category === "Food").reduce((a, b) => a + b.amount, 0) },
+    { name: "Transport", value: expenses.filter((e) => e.category === "Transport").reduce((a, b) => a + b.amount, 0) },
+    { name: "Utilities", value: expenses.filter((e) => e.category === "Utilities").reduce((a, b) => a + b.amount, 0) },
+    { name: "Health", value: expenses.filter((e) => e.category === "Health").reduce((a, b) => a + b.amount, 0) },
+    { name: "Entertainment", value: expenses.filter((e) => e.category === "Entertainment").reduce((a, b) => a + b.amount, 0) },
+    { name: "Other", value: expenses.filter((e) => e.category === "Other").reduce((a, b) => a + b.amount, 0) },
   ];
 
-  return (
-    <div className="max-w-2xl mx-auto bg-white shadow rounded p-6">
-      <h2 className="text-2xl font-bold mb-4 text-center">Dashboard</h2>
+  const COLORS = ["#8884d8", "#82ca9d", "#ffc658", "#ff8042", "#00c49f", "#FFBB28"];
 
-      {loading && <Loader />}
+  return (
+    <div className="max-w-2xl mx-auto p-4 bg-white rounded shadow">
+      <h1 className="text-2xl font-bold mb-4">Dashboard</h1>
+      {loading && <p>Loading...</p>}
       {error && <p className="text-red-500">{error}</p>}
 
-      <p className="text-lg font-semibold mb-4 text-center">
-        Total Expenses:{" "}
-        <span className="text-blue-600">₹{totalExpenses.toFixed(2)}</span>
-      </p>
+      <p className="text-lg font-semibold">Total Expenses: ₹{total.toFixed(2)}</p>
 
-      <div className="h-80">
-        {categoryData.length > 0 ? (
-          <ResponsiveContainer width="100%" height="100%">
-            <PieChart>
-              <Pie
-                data={categoryData}
-                dataKey="value"
-                nameKey="name"
-                cx="50%"
-                cy="50%"
-                outerRadius={100}
-                fill="#8884d8"
-                label
-              >
-                {categoryData.map((entry, index) => (
-                  <Cell
-                    key={`cell-${index}`}
-                    fill={COLORS[index % COLORS.length]}
-                  />
-                ))}
-              </Pie>
-              <Tooltip />
-              <Legend />
-            </PieChart>
-          </ResponsiveContainer>
-        ) : (
-          <p className="text-center text-gray-500">No expenses to display.</p>
-        )}
+      <div className="h-64 mt-4">
+        <ResponsiveContainer>
+          <PieChart>
+            <Pie
+              data={data}
+              dataKey="value"
+              nameKey="name"
+              cx="50%"
+              cy="50%"
+              outerRadius={80}
+              fill="#8884d8"
+              label
+            >
+              {data.map((entry, index) => (
+                <Cell key={`cell-${index}`} fill={COLORS[index % COLORS.length]} />
+              ))}
+            </Pie>
+            <Tooltip />
+          </PieChart>
+        </ResponsiveContainer>
       </div>
     </div>
   );

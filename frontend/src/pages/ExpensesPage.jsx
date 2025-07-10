@@ -1,76 +1,62 @@
-import React, { useEffect, useState } from "react";
+import React, { useState, useEffect } from "react";
 import { useDispatch, useSelector } from "react-redux";
-import {
-  getExpenses,
-  addExpense,
-  deleteExpense,
-} from "../features/expenses/expenseSlice";
-import Loader from "../components/Loader";
+import { fetchExpenses, addExpense, deleteExpense } from "../features/expenses/expenseSlice";
+import { useNavigate } from "react-router-dom";
 
 const ExpensesPage = () => {
   const dispatch = useDispatch();
+  const navigate = useNavigate();
+  const { user } = useSelector((state) => state.auth);
   const { expenses, loading, error } = useSelector((state) => state.expenses);
 
-  const [formData, setFormData] = useState({
-    title: "",
-    amount: "",
-    category: "Other",
-    notes: "",
-  });
+  const [title, setTitle] = useState("");
+  const [amount, setAmount] = useState("");
+  const [category, setCategory] = useState("Other");
 
   useEffect(() => {
-    dispatch(getExpenses());
-  }, [dispatch]);
-
-  const handleChange = (e) => {
-    setFormData({ ...formData, [e.target.name]: e.target.value });
-  };
-
-  const handleAddExpense = (e) => {
-    e.preventDefault();
-    if (!formData.title || !formData.amount) {
-      alert("Please add title and amount.");
-      return;
+    if (!user) {
+      navigate("/login");
+    } else {
+      dispatch(fetchExpenses());
     }
-    dispatch(addExpense({ ...formData, amount: Number(formData.amount) }));
-    setFormData({ title: "", amount: "", category: "Other", notes: "" });
+  }, [dispatch, navigate, user]);
+
+  const handleSubmit = (e) => {
+    e.preventDefault();
+    dispatch(addExpense({ title, amount: Number(amount), category }));
+    setTitle("");
+    setAmount("");
+    setCategory("Other");
   };
 
   const handleDelete = (id) => {
-    if (window.confirm("Are you sure you want to delete this expense?")) {
-      dispatch(deleteExpense(id));
-    }
+    dispatch(deleteExpense(id));
   };
 
-  if (loading) return <Loader />;
-
   return (
-    <div className="max-w-3xl mx-auto">
-      <h1 className="text-3xl font-bold mb-4">Manage Expenses</h1>
+    <div className="max-w-2xl mx-auto p-4 bg-white rounded shadow">
+      <h1 className="text-2xl font-bold mb-4">Expenses</h1>
 
-      <form onSubmit={handleAddExpense} className="space-y-3 mb-6">
+      <form onSubmit={handleSubmit} className="space-y-3 mb-4">
         <input
           type="text"
-          name="title"
           placeholder="Title"
-          value={formData.title}
-          onChange={handleChange}
-          className="w-full border p-2 rounded"
+          value={title}
+          onChange={(e) => setTitle(e.target.value)}
           required
+          className="w-full border p-2 rounded"
         />
         <input
           type="number"
-          name="amount"
           placeholder="Amount"
-          value={formData.amount}
-          onChange={handleChange}
-          className="w-full border p-2 rounded"
+          value={amount}
+          onChange={(e) => setAmount(e.target.value)}
           required
+          className="w-full border p-2 rounded"
         />
         <select
-          name="category"
-          value={formData.category}
-          onChange={handleChange}
+          value={category}
+          onChange={(e) => setCategory(e.target.value)}
           className="w-full border p-2 rounded"
         >
           <option value="Food">Food</option>
@@ -80,51 +66,43 @@ const ExpensesPage = () => {
           <option value="Entertainment">Entertainment</option>
           <option value="Other">Other</option>
         </select>
-        <textarea
-          name="notes"
-          placeholder="Notes (optional)"
-          value={formData.notes}
-          onChange={handleChange}
-          className="w-full border p-2 rounded"
-        ></textarea>
         <button
           type="submit"
-          className="bg-blue-600 text-white p-2 rounded w-full hover:bg-blue-700"
+          className="bg-blue-600 text-white w-full p-2 rounded hover:bg-blue-700"
+          disabled={loading}
         >
-          Add Expense
+          {loading ? "Adding..." : "Add Expense"}
         </button>
       </form>
 
-      {error && <p className="text-red-500 mb-4">{error}</p>}
+      {loading && <p>Loading...</p>}
+      {error && <p className="text-red-500">{error}</p>}
 
-      <div>
-        <h2 className="text-xl font-semibold mb-2">Expense List</h2>
-        {expenses.length === 0 ? (
-          <p>No expenses added yet.</p>
-        ) : (
-          <ul className="space-y-2">
-            {expenses.map((expense) => (
-              <li
-                key={expense._id}
-                className="flex justify-between items-center border p-2 rounded"
+      {expenses.length === 0 ? (
+        <p>No expenses to display.</p>
+      ) : (
+        <ul className="space-y-2">
+          {expenses.map((expense) => (
+            <li
+              key={expense._id}
+              className="flex justify-between items-center p-2 border rounded"
+            >
+              <div>
+                <p className="font-semibold">{expense.title}</p>
+                <p className="text-sm text-gray-500">
+                  ₹{expense.amount} • {expense.category}
+                </p>
+              </div>
+              <button
+                onClick={() => handleDelete(expense._id)}
+                className="text-red-500 hover:underline"
               >
-                <div>
-                  <p className="font-semibold">{expense.title}</p>
-                  <p className="text-sm text-gray-600">
-                    ₹{expense.amount} - {expense.category}
-                  </p>
-                </div>
-                <button
-                  onClick={() => handleDelete(expense._id)}
-                  className="bg-red-500 text-white px-2 py-1 rounded hover:bg-red-600"
-                >
-                  Delete
-                </button>
-              </li>
-            ))}
-          </ul>
-        )}
-      </div>
+                Delete
+              </button>
+            </li>
+          ))}
+        </ul>
+      )}
     </div>
   );
 };
