@@ -6,6 +6,7 @@ import { useNavigate } from "react-router-dom";
 const LoginPage = () => {
   const dispatch = useDispatch();
   const navigate = useNavigate();
+
   const { userInfo, loading, error } = useSelector((state) => state.auth);
 
   const [email, setEmail] = useState("");

@@ -4,96 +4,94 @@ const Expense = require("../models/Expense");
 // @route   POST /api/expenses
 // @access  Private
 const addExpense = async (req, res) => {
-  const { title, amount, category, date, notes } = req.body;
+  const { title, amount, category, date } = req.body;
 
-  if (!title || !amount || !category) {
-    return res
-      .status(400)
-      .json({ message: "Please provide title, amount, and category" });
+  if (!title || !amount || !category || !date) {
+    return res.status(400).json({ message: "Please fill in all fields" });
   }
 
-  const expense = new Expense({
-    user: req.user._id,
-    title,
-    amount,
-    category,
-    date: date || Date.now(),
-    notes,
-  });
+  try {
+    const expense = await Expense.create({
+      user: req.user._id,
+      title,
+      amount,
+      category,
+      date,
+    });
 
-  const createdExpense = await expense.save();
-  res.status(201).json(createdExpense);
+    res.status(201).json(expense);
+  } catch (error) {
+    res.status(500).json({ message: error.message });
+  }
 };
 
-// @desc    Get user's expenses with filters & pagination
+// @desc    Get user's expenses
 // @route   GET /api/expenses
 // @access  Private
 const getExpenses = async (req, res) => {
-  const { category, startDate, endDate, page = 1, limit = 10 } = req.query;
-  const filter = { user: req.user._id };
-
-  if (category) filter.category = category;
-  if (startDate || endDate) {
-    filter.date = {};
-    if (startDate) filter.date.$gte = new Date(startDate);
-    if (endDate) filter.date.$lte = new Date(endDate);
+  try {
+    const expenses = await Expense.find({ user: req.user._id }).sort({
+      date: -1,
+    });
+    res.json(expenses);
+  } catch (error) {
+    res.status(500).json({ message: error.message });
   }
-
-  const total = await Expense.countDocuments(filter);
-  const expenses = await Expense.find(filter)
-    .sort({ date: -1 })
-    .skip((page - 1) * limit)
-    .limit(Number(limit));
-
-  res.json({
-    expenses,
-    total,
-    page: Number(page),
-    pages: Math.ceil(total / limit),
-  });
 };
 
 // @desc    Delete expense
 // @route   DELETE /api/expenses/:id
 // @access  Private
 const deleteExpense = async (req, res) => {
-  const expense = await Expense.findById(req.params.id);
+  try {
+    const expense = await Expense.findById(req.params.id);
 
-  if (!expense) {
-    return res.status(404).json({ message: "Expense not found" });
+    if (!expense) {
+      return res.status(404).json({ message: "Expense not found" });
+    }
+
+    if (expense.user.toString() !== req.user._id.toString()) {
+      return res
+        .status(401)
+        .json({ message: "Not authorized to delete this expense" });
+    }
+
+    await expense.remove();
+    res.json({ message: "Expense removed" });
+  } catch (error) {
+    res.status(500).json({ message: error.message });
   }
-
-  if (expense.user.toString() !== req.user._id.toString()) {
-    return res.status(401).json({ message: "Not authorized" });
-  }
-
-  await expense.remove();
-  res.json({ message: "Expense removed" });
 };
 
 // @desc    Update expense
 // @route   PUT /api/expenses/:id
 // @access  Private
 const updateExpense = async (req, res) => {
-  const { title, amount, category, date, notes } = req.body;
-  const expense = await Expense.findById(req.params.id);
+  const { title, amount, category, date } = req.body;
 
-  if (!expense) {
-    return res.status(404).json({ message: "Expense not found" });
+  try {
+    const expense = await Expense.findById(req.params.id);
+
+    if (!expense) {
+      return res.status(404).json({ message: "Expense not found" });
+    }
+
+    if (expense.user.toString() !== req.user._id.toString()) {
+      return res
+        .status(401)
+        .json({ message: "Not authorized to update this expense" });
+    }
+
+    expense.title = title || expense.title;
+    expense.amount = amount || expense.amount;
+    expense.category = category || expense.category;
+    expense.date = date || expense.date;
+
+    const updatedExpense = await expense.save();
+    res.json(updatedExpense);
+  } catch (error) {
+    res.status(500).json({ message: error.message });
   }
-
-  if (expense.user.toString() !== req.user._id.toString()) {
-    return res.status(401).json({ message: "Not authorized" });
-  }
-
-  expense.title = title || expense.title;
-  expense.amount = amount || expense.amount;
-  expense.category = category || expense.category;
-  expense.date = date || expense.date;
-  expense.notes = notes || expense.notes;
-
-  const updatedExpense = await expense.save();
-  res.json(updatedExpense);
 };
 
 module.exports = {

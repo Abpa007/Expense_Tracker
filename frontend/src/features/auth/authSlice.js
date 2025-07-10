@@ -39,41 +39,40 @@ export const register = createAsyncThunk(
 const authSlice = createSlice({
   name: "auth",
   initialState: {
-    user: userInfo,
+    userInfo: userInfo,
     loading: false,
     error: null,
   },
   reducers: {
-    // 🔹 Logout action
     logout: (state) => {
-      state.user = null;
+      state.userInfo = null;
       localStorage.removeItem("userInfo");
     },
   },
   extraReducers: (builder) => {
     builder
-      // Handle login
+      // Login
       .addCase(login.pending, (state) => {
         state.loading = true;
         state.error = null;
       })
       .addCase(login.fulfilled, (state, action) => {
         state.loading = false;
-        state.user = action.payload;
+        state.userInfo = action.payload;
         localStorage.setItem("userInfo", JSON.stringify(action.payload));
       })
       .addCase(login.rejected, (state, action) => {
         state.loading = false;
         state.error = action.payload;
       })
-      // Handle register
+      // Register
       .addCase(register.pending, (state) => {
         state.loading = true;
         state.error = null;
       })
       .addCase(register.fulfilled, (state, action) => {
         state.loading = false;
-        state.user = action.payload;
+        state.userInfo = action.payload;
         localStorage.setItem("userInfo", JSON.stringify(action.payload));
       })
       .addCase(register.rejected, (state, action) => {
@@ -82,8 +81,6 @@ const authSlice = createSlice({
       });
   },
 });
-// export logout action for Header usage
-export const { logout } = authSlice.actions;
 
-// export reducer for store configuration
+export const { logout } = authSlice.actions;
 export default authSlice.reducer;

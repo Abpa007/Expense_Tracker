@@ -1,30 +1,36 @@
 import React from "react";
 import { useDispatch } from "react-redux";
 import { deleteExpense } from "../features/expenses/expenseSlice";
+import { toast } from "react-toastify";
 
 const ExpenseItem = ({ expense }) => {
   const dispatch = useDispatch();
 
-  const handleDelete = () => {
-    if (window.confirm("Are you sure you want to delete this expense?")) {
-      dispatch(deleteExpense(expense._id));
+  const handleDelete = async () => {
+    if (!window.confirm("Are you sure you want to delete this expense?"))
+      return;
+    try {
+      await dispatch(deleteExpense(expense._id)).unwrap();
+      toast.success("Expense deleted successfully");
+    } catch (error) {
+      toast.error(error);
     }
   };
 
   return (
-    <div className="bg-white shadow rounded p-4 flex justify-between items-center">
+    <div className="border p-3 rounded flex justify-between items-center mb-2 bg-white shadow-sm">
       <div>
         <h3 className="font-semibold">{expense.title}</h3>
-        <p className="text-sm text-gray-500">{expense.category}</p>
-        <p className="text-sm text-gray-400">
-          {new Date(expense.date).toLocaleDateString()}
+        <p className="text-sm text-gray-500">
+          {expense.category} | {new Date(expense.date).toLocaleDateString()}
         </p>
+        {expense.notes && <p className="text-sm">{expense.notes}</p>}
       </div>
-      <div className="flex gap-4 items-center">
+      <div className="flex items-center space-x-3">
         <span className="font-bold text-green-600">₹{expense.amount}</span>
         <button
           onClick={handleDelete}
-          className="text-red-500 hover:underline text-sm"
+          className="bg-red-500 text-white px-2 py-1 rounded hover:bg-red-600"
         >
           Delete
         </button>

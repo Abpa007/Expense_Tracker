@@ -7,44 +7,31 @@ const generateToken = require("../utils/generateToken");
 const registerUser = async (req, res) => {
   const { name, email, password } = req.body;
 
-  // Check if user exists
-  const userExists = await User.findOne({ email });
-  if (userExists) {
-    return res.status(400).json({ message: "User already exists" });
-  }
-
-  // Create user
-  const user = await User.create({
-    name,
-    email,
-    password,
-  });
-  const mongoose = require("mongoose");
-
-  const connectDB = async () => {
-    try {
-      const conn = await mongoose.connect(process.env.MONGO_URI, {
-        useNewUrlParser: true,
-        useUnifiedTopology: true,
-      });
-      console.log(`✅ MongoDB Connected: ${conn.connection.host}`);
-    } catch (error) {
-      console.error(`❌ Error: ${error.message}`);
-      process.exit(1);
+  try {
+    const userExists = await User.findOne({ email });
+    if (userExists) {
+      return res.status(400).json({ message: "User already exists" });
     }
-  };
 
-  module.exports = connectDB;
-
-  if (user) {
-    res.status(201).json({
-      _id: user._id,
-      name: user.name,
-      email: user.email,
-      token: generateToken(user._id),
+    const user = await User.create({
+      name,
+      email,
+      password,
     });
-  } else {
-    res.status(400).json({ message: "Invalid user data" });
+
+    if (user) {
+      res.status(201).json({
+        _id: user._id,
+        name: user.name,
+        email: user.email,
+        token: generateToken(user._id),
+      });
+    } else {
+      res.status(400).json({ message: "Invalid user data" });
+    }
+  } catch (error) {
+    console.error(error);
+    res.status(500).json({ message: "Server error" });
   }
 };
 
@@ -54,17 +41,22 @@ const registerUser = async (req, res) => {
 const loginUser = async (req, res) => {
   const { email, password } = req.body;
 
-  const user = await User.findOne({ email });
+  try {
+    const user = await User.findOne({ email });
 
-  if (user && (await user.matchPassword(password))) {
-    res.json({
-      _id: user._id,
-      name: user.name,
-      email: user.email,
-      token: generateToken(user._id),
-    });
-  } else {
-    res.status(401).json({ message: "Invalid email or password" });
+    if (user && (await user.matchPassword(password))) {
+      res.json({
+        _id: user._id,
+        name: user.name,
+        email: user.email,
+        token: generateToken(user._id),
+      });
+    } else {
+      res.status(401).json({ message: "Invalid email or password" });
+    }
+  } catch (error) {
+    console.error(error);
+    res.status(500).json({ message: "Server error" });
   }
 };
 
@@ -72,16 +64,21 @@ const loginUser = async (req, res) => {
 // @route   GET /api/auth/profile
 // @access  Private
 const getUserProfile = async (req, res) => {
-  const user = await User.findById(req.user._id);
+  try {
+    const user = await User.findById(req.user._id);
 
-  if (user) {
-    res.json({
-      _id: user._id,
-      name: user.name,
-      email: user.email,
-    });
-  } else {
-    res.status(404).json({ message: "User not found" });
+    if (user) {
+      res.json({
+        _id: user._id,
+        name: user.name,
+        email: user.email,
+      });
+    } else {
+      res.status(404).json({ message: "User not found" });
+    }
+  } catch (error) {
+    console.error(error);
+    res.status(500).json({ message: "Server error" });
   }
 };
 

@@ -1,91 +1,99 @@
 import React, { useState } from "react";
-import { useDispatch } from "react-redux";
+import { useDispatch, useSelector } from "react-redux";
 import { addExpense } from "../features/expenses/expenseSlice";
+import { toast } from "react-toastify";
 
 const ExpenseForm = () => {
   const dispatch = useDispatch();
+  const { loading } = useSelector((state) => state.expenses);
+
   const [formData, setFormData] = useState({
     title: "",
     amount: "",
     category: "Other",
-    date: "",
     notes: "",
   });
 
   const handleChange = (e) => {
-    setFormData({ ...formData, [e.target.name]: e.target.value });
+    setFormData((prev) => ({
+      ...prev,
+      [e.target.name]: e.target.value,
+    }));
   };
 
-  const handleSubmit = (e) => {
+  const handleSubmit = async (e) => {
     e.preventDefault();
-    dispatch(addExpense(formData));
-    setFormData({
-      title: "",
-      amount: "",
-      category: "Other",
-      date: "",
-      notes: "",
-    });
+    if (!formData.title || !formData.amount || !formData.category) {
+      toast.error("Please fill all required fields");
+      return;
+    }
+
+    try {
+      await dispatch(addExpense(formData)).unwrap();
+      toast.success("Expense added successfully!");
+      setFormData({
+        title: "",
+        amount: "",
+        category: "Other",
+        notes: "",
+      });
+    } catch (error) {
+      toast.error(error);
+    }
   };
 
   return (
-    <form
-      onSubmit={handleSubmit}
-      className="bg-white shadow rounded p-4 space-y-3"
-    >
-      <input
-        type="text"
-        name="title"
-        placeholder="Title"
-        value={formData.title}
-        onChange={handleChange}
-        required
-        className="w-full border p-2 rounded"
-      />
-      <input
-        type="number"
-        name="amount"
-        placeholder="Amount"
-        value={formData.amount}
-        onChange={handleChange}
-        required
-        className="w-full border p-2 rounded"
-      />
-      <select
-        name="category"
-        value={formData.category}
-        onChange={handleChange}
-        required
-        className="w-full border p-2 rounded"
-      >
-        <option value="Food">Food</option>
-        <option value="Transport">Transport</option>
-        <option value="Utilities">Utilities</option>
-        <option value="Health">Health</option>
-        <option value="Entertainment">Entertainment</option>
-        <option value="Other">Other</option>
-      </select>
-      <input
-        type="date"
-        name="date"
-        value={formData.date}
-        onChange={handleChange}
-        className="w-full border p-2 rounded"
-      />
-      <textarea
-        name="notes"
-        placeholder="Notes (optional)"
-        value={formData.notes}
-        onChange={handleChange}
-        className="w-full border p-2 rounded"
-      ></textarea>
-      <button
-        type="submit"
-        className="bg-blue-600 text-white w-full p-2 rounded hover:bg-blue-700"
-      >
-        Add Expense
-      </button>
-    </form>
+    <div className="bg-white rounded shadow p-4 w-full max-w-md mx-auto mt-6">
+      <h2 className="text-xl font-semibold mb-4 text-center">Add Expense</h2>
+      <form onSubmit={handleSubmit} className="space-y-3">
+        <input
+          type="text"
+          name="title"
+          placeholder="Title"
+          className="w-full border p-2 rounded"
+          value={formData.title}
+          onChange={handleChange}
+          required
+        />
+        <input
+          type="number"
+          name="amount"
+          placeholder="Amount"
+          className="w-full border p-2 rounded"
+          value={formData.amount}
+          onChange={handleChange}
+          required
+        />
+        <select
+          name="category"
+          className="w-full border p-2 rounded"
+          value={formData.category}
+          onChange={handleChange}
+          required
+        >
+          <option value="Food">Food</option>
+          <option value="Transport">Transport</option>
+          <option value="Utilities">Utilities</option>
+          <option value="Health">Health</option>
+          <option value="Entertainment">Entertainment</option>
+          <option value="Other">Other</option>
+        </select>
+        <textarea
+          name="notes"
+          placeholder="Notes (optional)"
+          className="w-full border p-2 rounded"
+          value={formData.notes}
+          onChange={handleChange}
+        />
+        <button
+          type="submit"
+          disabled={loading}
+          className="bg-blue-600 text-white w-full p-2 rounded hover:bg-blue-700"
+        >
+          {loading ? "Adding..." : "Add Expense"}
+        </button>
+      </form>
+    </div>
   );
 };
 
