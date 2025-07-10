@@ -1,134 +1,41 @@
+// At the top of expenseSlice.js
 import { createSlice, createAsyncThunk } from "@reduxjs/toolkit";
-import {
-  addExpenseAPI,
-  getExpensesAPI,
-  deleteExpenseAPI,
-  updateExpenseAPI,
-} from "./expenseAPI";
+import axios from "axios";
 
-// Async thunks
-export const addExpense = createAsyncThunk(
-  "expenses/add",
-  async (expenseData, thunkAPI) => {
+// Create fetchExpenses thunk
+export const fetchExpenses = createAsyncThunk(
+  "expenses/fetchExpenses",
+  async (_, thunkAPI) => {
     try {
-      const { data } = await addExpenseAPI(expenseData);
-      return data;
+      const { data } = await axios.get("/api/expenses");
+      return data.expenses;
     } catch (error) {
-      return thunkAPI.rejectWithValue(
-        error.response.data.message || "Adding expense failed"
-      );
+      return thunkAPI.rejectWithValue(error.response.data.message);
     }
   }
 );
 
-export const getExpenses = createAsyncThunk(
-  "expenses/get",
-  async (query, thunkAPI) => {
-    try {
-      const { data } = await getExpensesAPI(query);
-      return data;
-    } catch (error) {
-      return thunkAPI.rejectWithValue(
-        error.response.data.message || "Fetching expenses failed"
-      );
-    }
-  }
-);
-
-export const deleteExpense = createAsyncThunk(
-  "expenses/delete",
-  async (id, thunkAPI) => {
-    try {
-      await deleteExpenseAPI(id);
-      return id;
-    } catch (error) {
-      return thunkAPI.rejectWithValue(
-        error.response.data.message || "Deleting expense failed"
-      );
-    }
-  }
-);
-
-export const updateExpense = createAsyncThunk(
-  "expenses/update",
-  async ({ id, updatedData }, thunkAPI) => {
-    try {
-      const { data } = await updateExpenseAPI(id, updatedData);
-      return data;
-    } catch (error) {
-      return thunkAPI.rejectWithValue(
-        error.response.data.message || "Updating expense failed"
-      );
-    }
-  }
-);
-
-// Slice
+// Then in your slice:
 const expenseSlice = createSlice({
   name: "expenses",
   initialState: {
     expenses: [],
-    total: 0,
     loading: false,
     error: null,
   },
-  reducers: {},
+  reducers: {
+    /* addExpense, deleteExpense etc. */
+  },
   extraReducers: (builder) => {
     builder
-      // Add Expense
-      .addCase(addExpense.pending, (state) => {
+      .addCase(fetchExpenses.pending, (state) => {
         state.loading = true;
-        state.error = null;
       })
-      .addCase(addExpense.fulfilled, (state, action) => {
+      .addCase(fetchExpenses.fulfilled, (state, action) => {
         state.loading = false;
-        state.expenses.unshift(action.payload);
+        state.expenses = action.payload;
       })
-      .addCase(addExpense.rejected, (state, action) => {
-        state.loading = false;
-        state.error = action.payload;
-      })
-      // Get Expenses
-      .addCase(getExpenses.pending, (state) => {
-        state.loading = true;
-        state.error = null;
-      })
-      .addCase(getExpenses.fulfilled, (state, action) => {
-        state.loading = false;
-        state.expenses = action.payload.expenses;
-        state.total = action.payload.total;
-      })
-      .addCase(getExpenses.rejected, (state, action) => {
-        state.loading = false;
-        state.error = action.payload;
-      })
-      // Delete Expense
-      .addCase(deleteExpense.pending, (state) => {
-        state.loading = true;
-        state.error = null;
-      })
-      .addCase(deleteExpense.fulfilled, (state, action) => {
-        state.loading = false;
-        state.expenses = state.expenses.filter(
-          (exp) => exp._id !== action.payload
-        );
-      })
-      .addCase(deleteExpense.rejected, (state, action) => {
-        state.loading = false;
-        state.error = action.payload;
-      })
-      // Update Expense
-      .addCase(updateExpense.pending, (state) => {
-        state.loading = true;
-        state.error = null;
-      })
-      .addCase(updateExpense.fulfilled, (state, action) => {
-        state.loading = false;
-        state.expenses = state.expenses.map((exp) =>
-          exp._id === action.payload._id ? action.payload : exp
-        );
-      })
-      .addCase(updateExpense.rejected, (state, action) => {
+      .addCase(fetchExpenses.rejected, (state, action) => {
         state.loading = false;
         state.error = action.payload;
       });

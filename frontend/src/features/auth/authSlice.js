@@ -1,116 +1,89 @@
 import { createSlice, createAsyncThunk } from "@reduxjs/toolkit";
-import { loginUserAPI, registerUserAPI, getUserProfileAPI } from "./authAPI";
+import axios from "../../api/axiosInstance";
 
-// Get user from localStorage if exists
-const userInfoFromStorage = localStorage.getItem("userInfo")
+// Load user from localStorage if available
+const userInfo = localStorage.getItem("userInfo")
   ? JSON.parse(localStorage.getItem("userInfo"))
   : null;
 
-// Async thunks
-export const loginUser = createAsyncThunk(
+// 🔹 Async thunk for user login
+export const login = createAsyncThunk(
   "auth/login",
-  async (userData, thunkAPI) => {
+  async (credentials, thunkAPI) => {
     try {
-      const { data } = await loginUserAPI(userData);
-      localStorage.setItem("userInfo", JSON.stringify(data));
-      localStorage.setItem("token", data.token);
+      const { data } = await axios.post("/api/auth/login", credentials);
       return data;
     } catch (error) {
       return thunkAPI.rejectWithValue(
-        error.response.data.message || "Login failed"
+        error.response?.data?.message || error.message
       );
     }
   }
 );
 
-export const registerUser = createAsyncThunk(
+// 🔹 Async thunk for user registration
+export const register = createAsyncThunk(
   "auth/register",
   async (userData, thunkAPI) => {
     try {
-      const { data } = await registerUserAPI(userData);
-      localStorage.setItem("userInfo", JSON.stringify(data));
-      localStorage.setItem("token", data.token);
+      const { data } = await axios.post("/api/auth/register", userData);
       return data;
     } catch (error) {
       return thunkAPI.rejectWithValue(
-        error.response.data.message || "Registration failed"
+        error.response?.data?.message || error.message
       );
     }
   }
 );
 
-export const getUserProfile = createAsyncThunk(
-  "auth/profile",
-  async (_, thunkAPI) => {
-    try {
-      const { data } = await getUserProfileAPI();
-      return data;
-    } catch (error) {
-      return thunkAPI.rejectWithValue(
-        error.response.data.message || "Fetching profile failed"
-      );
-    }
-  }
-);
-
-// Slice
 const authSlice = createSlice({
   name: "auth",
   initialState: {
-    userInfo: userInfoFromStorage,
+    user: userInfo,
     loading: false,
     error: null,
   },
   reducers: {
+    // 🔹 Logout action
     logout: (state) => {
-      state.userInfo = null;
+      state.user = null;
       localStorage.removeItem("userInfo");
-      localStorage.removeItem("token");
     },
   },
   extraReducers: (builder) => {
     builder
-      // Login
-      .addCase(loginUser.pending, (state) => {
+      // Handle login
+      .addCase(login.pending, (state) => {
         state.loading = true;
         state.error = null;
       })
-      .addCase(loginUser.fulfilled, (state, action) => {
+      .addCase(login.fulfilled, (state, action) => {
         state.loading = false;
-        state.userInfo = action.payload;
+        state.user = action.payload;
+        localStorage.setItem("userInfo", JSON.stringify(action.payload));
       })
-      .addCase(loginUser.rejected, (state, action) => {
+      .addCase(login.rejected, (state, action) => {
         state.loading = false;
         state.error = action.payload;
       })
-      // Register
-      .addCase(registerUser.pending, (state) => {
+      // Handle register
+      .addCase(register.pending, (state) => {
         state.loading = true;
         state.error = null;
       })
-      .addCase(registerUser.fulfilled, (state, action) => {
+      .addCase(register.fulfilled, (state, action) => {
         state.loading = false;
-        state.userInfo = action.payload;
+        state.user = action.payload;
+        localStorage.setItem("userInfo", JSON.stringify(action.payload));
       })
-      .addCase(registerUser.rejected, (state, action) => {
-        state.loading = false;
-        state.error = action.payload;
-      })
-      // Get Profile
-      .addCase(getUserProfile.pending, (state) => {
-        state.loading = true;
-        state.error = null;
-      })
-      .addCase(getUserProfile.fulfilled, (state, action) => {
-        state.loading = false;
-        state.userInfo = { ...state.userInfo, ...action.payload };
-      })
-      .addCase(getUserProfile.rejected, (state, action) => {
+      .addCase(register.rejected, (state, action) => {
         state.loading = false;
         state.error = action.payload;
       });
   },
 });
-
+// export logout action for Header usage
 export const { logout } = authSlice.actions;
+
+// export reducer for store configuration
 export default authSlice.reducer;
