@@ -1,13 +1,22 @@
 const express = require("express");
 const router = express.Router();
 const {
-  getExpenses,
   addExpense,
+  getExpenses,
   deleteExpense,
+  updateExpense,
 } = require("../controllers/expenseController");
+const { protect } = require("../middleware/authMiddleware");
 
-router.get("/", getExpenses);
-router.post("/", addExpense);
-router.delete("/:id", deleteExpense);
+// All routes are protected
+router
+  .route("/")
+  .post(protect, addExpense) // Add new expense
+  .get(protect, getExpenses); // Get expenses with filters/pagination
+
+router
+  .route("/:id")
+  .delete(protect, deleteExpense) // Delete expense
+  .put(protect, updateExpense); // Update expense
 
 module.exports = router;
