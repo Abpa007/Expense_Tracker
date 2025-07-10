@@ -15,7 +15,7 @@ app.use("/api/auth", require("./routes/authRoutes"));
 app.use("/api/expenses", require("./routes/expenseRoutes"));
 
 // Error Middleware
-const { errorHandler } = require("./middleware/errorMiddleware");
+const { errorHandler } = require("./middleware/");
 app.use(errorHandler);
 
 const PORT = process.env.PORT || 5000;
