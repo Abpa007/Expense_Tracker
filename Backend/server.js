@@ -11,7 +11,11 @@ const app = express();
 // ✅ CORS configuration for frontend access
 app.use(
   cors({
-    origin: "http://localhost:3000",
+    origin: [
+      "http://localhost:3000",
+      "https://expense-tracker-frontend-yourname.vercel.app",
+    ],
+
     credentials: true,
   })
 );
