@@ -27,14 +27,16 @@ const LoginPage = () => {
   };
 
   return (
-    <div className="max-w-md mx-auto mt-10 bg-white shadow rounded p-6">
-      <h2 className="text-2xl font-bold mb-4 text-center">Login</h2>
-      {error && <p className="text-red-500 text-center">{error}</p>}
-      <form onSubmit={handleSubmit} className="space-y-3">
+    <div className="max-w-md mx-auto mt-16 bg-white shadow-xl rounded-2xl p-8 flex flex-col items-center justify-center">
+      <h2 className="text-3xl font-bold mb-6 text-center text-gray-800">
+        Login to Your Account
+      </h2>
+      {error && <p className="text-red-500 text-center mb-2">{error}</p>}
+      <form onSubmit={handleSubmit} className="w-full space-y-4">
         <input
           type="email"
           placeholder="Email"
-          className="w-full border p-2 rounded"
+          className="w-full border border-gray-300 p-3 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-400"
           value={email}
           onChange={(e) => setEmail(e.target.value)}
           required
@@ -43,7 +45,7 @@ const LoginPage = () => {
         <input
           type="password"
           placeholder="Password"
-          className="w-full border p-2 rounded"
+          className="w-full border border-gray-300 p-3 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-400"
           value={password}
           onChange={(e) => setPassword(e.target.value)}
           required
@@ -52,7 +54,7 @@ const LoginPage = () => {
         <button
           type="submit"
           disabled={loading}
-          className="bg-blue-600 text-white w-full p-2 rounded hover:bg-blue-700 transition"
+          className="bg-blue-600 hover:bg-blue-700 text-white w-full p-3 rounded-lg font-semibold transition duration-200"
         >
           {loading ? "Logging in..." : "Login"}
         </button>

@@ -12,7 +12,7 @@ const ExpenseForm = () => {
     amount: "",
     category: "Other",
     notes: "",
-    date: new Date().toISOString().substring(0, 10), // pre-fill with today
+    date: new Date().toISOString().substring(0, 10),
   });
 
   const handleChange = (e) => {
@@ -51,14 +51,16 @@ const ExpenseForm = () => {
   };
 
   return (
-    <div className="bg-white rounded shadow p-4 w-full max-w-md mx-auto mt-6">
-      <h2 className="text-xl font-semibold mb-4 text-center">Add Expense</h2>
-      <form onSubmit={handleSubmit} className="space-y-3">
+    <div className="bg-white dark:bg-gray-900 rounded-2xl shadow-xl p-6 w-full max-w-md mx-auto mt-8">
+      <h2 className="text-2xl font-bold mb-4 text-center text-gray-900 dark:text-gray-100">
+        Add Expense
+      </h2>
+      <form onSubmit={handleSubmit} className="flex flex-col gap-4">
         <input
           type="text"
           name="title"
           placeholder="Title"
-          className="w-full border p-2 rounded"
+          className="border border-gray-300 dark:border-gray-700 bg-white dark:bg-gray-800 rounded-lg p-3 focus:outline-none focus:ring-2 focus:ring-blue-500 transition"
           value={formData.title}
           onChange={handleChange}
           required
@@ -67,7 +69,7 @@ const ExpenseForm = () => {
           type="number"
           name="amount"
           placeholder="Amount"
-          className="w-full border p-2 rounded"
+          className="border border-gray-300 dark:border-gray-700 bg-white dark:bg-gray-800 rounded-lg p-3 focus:outline-none focus:ring-2 focus:ring-blue-500 transition"
           value={formData.amount}
           onChange={handleChange}
           required
@@ -75,14 +77,14 @@ const ExpenseForm = () => {
         <input
           type="date"
           name="date"
-          className="w-full border p-2 rounded"
+          className="border border-gray-300 dark:border-gray-700 bg-white dark:bg-gray-800 rounded-lg p-3 focus:outline-none focus:ring-2 focus:ring-blue-500 transition"
           value={formData.date}
           onChange={handleChange}
           required
         />
         <select
           name="category"
-          className="w-full border p-2 rounded"
+          className="border border-gray-300 dark:border-gray-700 bg-white dark:bg-gray-800 rounded-lg p-3 focus:outline-none focus:ring-2 focus:ring-blue-500 transition"
           value={formData.category}
           onChange={handleChange}
           required
@@ -97,14 +99,14 @@ const ExpenseForm = () => {
         <textarea
           name="notes"
           placeholder="Notes (optional)"
-          className="w-full border p-2 rounded"
+          className="border border-gray-300 dark:border-gray-700 bg-white dark:bg-gray-800 rounded-lg p-3 focus:outline-none focus:ring-2 focus:ring-blue-500 transition resize-none min-h-[80px]"
           value={formData.notes}
           onChange={handleChange}
         />
         <button
           type="submit"
           disabled={loading}
-          className="bg-blue-600 text-white w-full p-2 rounded hover:bg-blue-700"
+          className="bg-blue-600 text-white rounded-lg p-3 font-medium hover:bg-blue-700 transition disabled:opacity-50 disabled:cursor-not-allowed"
         >
           {loading ? "Adding..." : "Add Expense"}
         </button>

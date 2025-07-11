@@ -68,11 +68,16 @@ const deleteExpense = async (req, res) => {
     res.status(500).json({ message: "Server error. Please try again later." });
   }
 };
-
 // @desc    Update expense
 // @route   PUT /api/expenses/:id
 // @access  Private
 const updateExpense = async (req, res) => {
+  if (!req.body) {
+    return res
+      .status(400)
+      .json({ message: "No data provided in request body" });
+  }
+
   const { title, amount, category, notes } = req.body;
 
   try {
@@ -86,6 +91,10 @@ const updateExpense = async (req, res) => {
       return res
         .status(401)
         .json({ message: "Not authorized to update this expense" });
+    }
+
+    if (!title && !amount && !category && !notes) {
+      return res.status(400).json({ message: "Please provide data to update" });
     }
 
     expense.title = title ? title.trim() : expense.title;

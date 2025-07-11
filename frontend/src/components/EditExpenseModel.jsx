@@ -22,7 +22,6 @@ const EditExpenseModal = ({ isOpen, onClose, expense }) => {
 
   const handleSubmit = async (e) => {
     e.preventDefault();
-
     try {
       await dispatch(
         updateExpense({
@@ -35,7 +34,6 @@ const EditExpenseModal = ({ isOpen, onClose, expense }) => {
           },
         })
       ).unwrap();
-
       toast.success("Expense updated successfully");
       onClose();
     } catch (error) {
@@ -48,68 +46,69 @@ const EditExpenseModal = ({ isOpen, onClose, expense }) => {
     <Dialog
       open={isOpen}
       onClose={onClose}
-      className="fixed z-50 inset-0 overflow-y-auto"
+      className="fixed inset-0 z-50 flex items-center justify-center p-4"
     >
-      <div className="flex items-center justify-center min-h-screen px-4">
-        <Dialog.Panel className="bg-white rounded p-6 w-full max-w-md shadow">
-          <Dialog.Title className="text-lg font-bold mb-4">
-            Edit Expense
-          </Dialog.Title>
-          <form onSubmit={handleSubmit} className="space-y-4">
-            <input
-              type="text"
-              placeholder="Title"
-              className="w-full border p-2 rounded"
-              value={title}
-              onChange={(e) => setTitle(e.target.value)}
-              required
-            />
-            <input
-              type="number"
-              placeholder="Amount"
-              className="w-full border p-2 rounded"
-              value={amount}
-              onChange={(e) => setAmount(e.target.value)}
-              required
-            />
-            <select
-              className="w-full border p-2 rounded"
-              value={category}
-              onChange={(e) => setCategory(e.target.value)}
-              required
+      <div
+        className="fixed inset-0 bg-black/50 backdrop-blur-sm"
+        aria-hidden="true"
+      />
+      <Dialog.Panel className="relative bg-white dark:bg-gray-900 rounded-2xl shadow-2xl w-full max-w-md p-6 flex flex-col gap-6">
+        <Dialog.Title className="text-2xl font-bold text-gray-900 dark:text-gray-100 text-center">
+          Edit Expense
+        </Dialog.Title>
+        <form onSubmit={handleSubmit} className="flex flex-col gap-4">
+          <input
+            type="text"
+            placeholder="Title"
+            className="border border-gray-300 dark:border-gray-700 bg-white dark:bg-gray-800 rounded-lg p-3 focus:outline-none focus:ring-2 focus:ring-blue-500 transition"
+            value={title}
+            onChange={(e) => setTitle(e.target.value)}
+            required
+          />
+          <input
+            type="number"
+            placeholder="Amount"
+            className="border border-gray-300 dark:border-gray-700 bg-white dark:bg-gray-800 rounded-lg p-3 focus:outline-none focus:ring-2 focus:ring-blue-500 transition"
+            value={amount}
+            onChange={(e) => setAmount(e.target.value)}
+            required
+          />
+          <select
+            className="border border-gray-300 dark:border-gray-700 bg-white dark:bg-gray-800 rounded-lg p-3 focus:outline-none focus:ring-2 focus:ring-blue-500 transition"
+            value={category}
+            onChange={(e) => setCategory(e.target.value)}
+            required
+          >
+            <option value="Food">Food</option>
+            <option value="Transport">Transport</option>
+            <option value="Utilities">Utilities</option>
+            <option value="Health">Health</option>
+            <option value="Entertainment">Entertainment</option>
+            <option value="Other">Other</option>
+          </select>
+          <textarea
+            placeholder="Notes (optional)"
+            className="border border-gray-300 dark:border-gray-700 bg-white dark:bg-gray-800 rounded-lg p-3 focus:outline-none focus:ring-2 focus:ring-blue-500 transition resize-none min-h-[80px]"
+            value={notes}
+            onChange={(e) => setNotes(e.target.value)}
+          />
+          <div className="flex justify-end gap-3">
+            <button
+              type="button"
+              onClick={onClose}
+              className="px-4 py-2 rounded-lg bg-gray-200 dark:bg-gray-700 text-gray-800 dark:text-gray-100 hover:bg-gray-300 dark:hover:bg-gray-600 transition"
             >
-              <option value="Food">Food</option>
-              <option value="Transport">Transport</option>
-              <option value="Utilities">Utilities</option>
-              <option value="Health">Health</option>
-              <option value="Entertainment">Entertainment</option>
-              <option value="Other">Other</option>
-            </select>
-            <textarea
-              placeholder="Notes (optional)"
-              className="w-full border p-2 rounded"
-              value={notes}
-              onChange={(e) => setNotes(e.target.value)}
-            />
-
-            <div className="flex justify-end space-x-2">
-              <button
-                type="button"
-                onClick={onClose}
-                className="bg-gray-300 text-gray-700 px-4 py-2 rounded hover:bg-gray-400"
-              >
-                Cancel
-              </button>
-              <button
-                type="submit"
-                className="bg-blue-600 text-white px-4 py-2 rounded hover:bg-blue-700"
-              >
-                Update
-              </button>
-            </div>
-          </form>
-        </Dialog.Panel>
-      </div>
+              Cancel
+            </button>
+            <button
+              type="submit"
+              className="px-4 py-2 rounded-lg bg-blue-600 text-white hover:bg-blue-700 transition"
+            >
+              Update
+            </button>
+          </div>
+        </form>
+      </Dialog.Panel>
     </Dialog>
   );
 };

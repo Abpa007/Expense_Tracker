@@ -14,8 +14,6 @@ const AddExpensePage = () => {
 
   const handleSubmit = async (e) => {
     e.preventDefault();
-
-    // Validation with correct numeric and trimmed checks
     if (
       title.trim() === "" ||
       category.trim() === "" ||
@@ -27,7 +25,6 @@ const AddExpensePage = () => {
       );
       return;
     }
-
     try {
       await dispatch(
         addExpense({
@@ -37,13 +34,10 @@ const AddExpensePage = () => {
           notes: notes.trim(),
         })
       ).unwrap();
-
-      // Optional: clear form after success
       setTitle("");
       setAmount("");
       setCategory("Other");
       setNotes("");
-
       navigate("/dashboard");
     } catch (error) {
       console.error(error);
@@ -52,13 +46,15 @@ const AddExpensePage = () => {
   };
 
   return (
-    <div className="max-w-md mx-auto p-4 bg-white rounded shadow mt-6">
-      <h1 className="text-2xl font-bold mb-4 text-center">Add Expense</h1>
-      <form onSubmit={handleSubmit} className="space-y-4">
+    <div className="max-w-lg w-full mx-auto p-6 sm:p-8 bg-white rounded-2xl shadow-2xl mt-12 sm:mt-16 animate-fadeIn flex flex-col gap-6">
+      <h1 className="text-2xl sm:text-3xl font-extrabold text-center text-gray-800 tracking-tight">
+        Add New Expense
+      </h1>
+      <form onSubmit={handleSubmit} className="flex flex-col gap-4">
         <input
           type="text"
           placeholder="Title"
-          className="w-full border p-2 rounded"
+          className="border border-gray-300 p-3 rounded-xl focus:outline-none focus:ring-2 focus:ring-blue-500 shadow-sm transition"
           value={title}
           onChange={(e) => setTitle(e.target.value)}
           required
@@ -66,13 +62,13 @@ const AddExpensePage = () => {
         <input
           type="number"
           placeholder="Amount"
-          className="w-full border p-2 rounded"
+          className="border border-gray-300 p-3 rounded-xl focus:outline-none focus:ring-2 focus:ring-blue-500 shadow-sm transition"
           value={amount}
           onChange={(e) => setAmount(e.target.value)}
           required
         />
         <select
-          className="w-full border p-2 rounded"
+          className="border border-gray-300 p-3 rounded-xl bg-white focus:outline-none focus:ring-2 focus:ring-blue-500 shadow-sm transition"
           value={category}
           onChange={(e) => setCategory(e.target.value)}
           required
@@ -86,13 +82,14 @@ const AddExpensePage = () => {
         </select>
         <textarea
           placeholder="Notes (optional)"
-          className="w-full border p-2 rounded"
+          className="border border-gray-300 p-3 rounded-xl focus:outline-none focus:ring-2 focus:ring-blue-500 shadow-sm transition resize-none min-h-[100px]"
+          rows={3}
           value={notes}
           onChange={(e) => setNotes(e.target.value)}
         />
         <button
           type="submit"
-          className="bg-blue-600 text-white w-full p-2 rounded hover:bg-blue-700"
+          className="bg-gradient-to-r from-blue-600 to-blue-500 text-white w-full p-3 rounded-xl hover:from-blue-700 hover:to-blue-600 transition font-semibold shadow-lg"
         >
           Save Expense
         </button>

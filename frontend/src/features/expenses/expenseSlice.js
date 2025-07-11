@@ -53,12 +53,12 @@ export const deleteExpense = createAsyncThunk(
   }
 );
 
-// ✅ Update Expense
+//Update Expense
 export const updateExpense = createAsyncThunk(
   "expenses/updateExpense",
-  async ({ id, data }, thunkAPI) => {
+  async ({ id, updatedData }, thunkAPI) => {
     try {
-      const response = await updateExpenseAPI(id, data);
+      const response = await updateExpenseAPI(id, updatedData);
       return response.data;
     } catch (error) {
       return thunkAPI.rejectWithValue(

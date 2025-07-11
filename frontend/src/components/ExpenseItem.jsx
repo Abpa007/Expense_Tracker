@@ -18,23 +18,27 @@ const ExpenseItem = ({ expense }) => {
   };
 
   return (
-    <div className="border p-3 rounded flex justify-between items-center mb-2 bg-white shadow-sm">
-      <div>
-        <h3 className="font-semibold">{expense.title}</h3>
-        <p className="text-sm text-gray-500">
+    <div className="bg-white dark:bg-gray-900 rounded-xl shadow p-4 flex justify-between items-start gap-4 hover:shadow-md transition">
+      <div className="space-y-1">
+        <h3 className="text-lg font-semibold text-gray-900 dark:text-gray-100">
+          {expense.title}
+        </h3>
+        <p className="text-sm text-gray-600 dark:text-gray-400">
           {expense.category} | {new Date(expense.date).toLocaleDateString()}
         </p>
         {expense.notes && (
-          <p className="text-sm text-gray-600 mt-1">{expense.notes}</p>
+          <p className="text-sm text-gray-700 dark:text-gray-300 mt-1">
+            {expense.notes}
+          </p>
         )}
       </div>
-      <div className="flex flex-col items-end space-y-2">
-        <span className="font-bold text-green-600">
+      <div className="flex flex-col items-end gap-2">
+        <span className="text-green-600 dark:text-green-400 font-semibold">
           ₹{Number(expense.amount).toFixed(2)}
         </span>
         <button
           onClick={handleDelete}
-          className="bg-red-500 text-white px-2 py-1 rounded hover:bg-red-600 text-sm"
+          className="px-3 py-1 text-sm rounded bg-red-500 text-white hover:bg-red-600 transition"
         >
           Delete
         </button>
