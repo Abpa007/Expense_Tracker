@@ -17,6 +17,9 @@ app.use(
 );
 
 app.use(express.json());
+app.get("/", (req, res) => {
+  res.send("Expense Tracker API is running...");
+});
 
 // API Routes
 app.use("/api/auth", require("./routes/authRoutes"));
