@@ -2,7 +2,7 @@ import axios from "axios";
 
 // Create an axios instance with baseURL
 const axiosInstance = axios.create({
-  baseURL: "http://localhost:5000/api",
+  baseURL: "https://expense-tracker-backend-x0zj.onrender.com/api",
   withCredentials: true, // optional if using cookies
 });
 
