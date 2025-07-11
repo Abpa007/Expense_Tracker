@@ -10,22 +10,23 @@ node_modules/
 # Build outputs
 build/
 
-# OS generated
+# OS generated files
 .DS_Store
 Thumbs.db
 
-# IDE settings
+# IDE/editor settings
 .vscode/
 .idea/
 *.sublime-workspace
 *.sublime-project
 
-# Coverage
+# Coverage reports
 coverage/
 
-# Optional npm cache/lock
+# npm/yarn lock files (optional)
 package-lock.json
+yarn.lock
 
-# Optional: Tailwind JIT or Next.js cache (if used)
+# Tailwind JIT or Next.js cache (if used)
 .next/
 .cache/
