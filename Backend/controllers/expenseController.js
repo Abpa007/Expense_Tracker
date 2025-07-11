@@ -4,24 +4,28 @@ const Expense = require("../models/Expense");
 // @route   POST /api/expenses
 // @access  Private
 const addExpense = async (req, res) => {
-  const { title, amount, category, date } = req.body;
+  const { title, amount, category, notes } = req.body;
 
-  if (!title || !amount || !category || !date) {
-    return res.status(400).json({ message: "Please fill in all fields" });
+  if (!title || !amount || !category) {
+    return res
+      .status(400)
+      .json({ message: "Please fill in all required fields" });
   }
 
   try {
     const expense = await Expense.create({
       user: req.user._id,
-      title,
-      amount,
-      category,
-      date,
+      title: title.trim(),
+      amount: parseFloat(amount),
+      category: category.trim(),
+      notes: notes ? notes.trim() : "",
+      date: new Date(), // assign current date
     });
 
     res.status(201).json(expense);
   } catch (error) {
-    res.status(500).json({ message: error.message });
+    console.error("Add Expense Error:", error);
+    res.status(500).json({ message: "Server error. Please try again later." });
   }
 };
 
@@ -31,11 +35,12 @@ const addExpense = async (req, res) => {
 const getExpenses = async (req, res) => {
   try {
     const expenses = await Expense.find({ user: req.user._id }).sort({
-      date: -1,
+      createdAt: -1,
     });
     res.json(expenses);
   } catch (error) {
-    res.status(500).json({ message: error.message });
+    console.error("Get Expenses Error:", error);
+    res.status(500).json({ message: "Server error. Please try again later." });
   }
 };
 
@@ -56,10 +61,11 @@ const deleteExpense = async (req, res) => {
         .json({ message: "Not authorized to delete this expense" });
     }
 
-    await expense.remove();
+    await expense.deleteOne();
     res.json({ message: "Expense removed" });
   } catch (error) {
-    res.status(500).json({ message: error.message });
+    console.error("Delete Expense Error:", error);
+    res.status(500).json({ message: "Server error. Please try again later." });
   }
 };
 
@@ -67,7 +73,7 @@ const deleteExpense = async (req, res) => {
 // @route   PUT /api/expenses/:id
 // @access  Private
 const updateExpense = async (req, res) => {
-  const { title, amount, category, date } = req.body;
+  const { title, amount, category, notes } = req.body;
 
   try {
     const expense = await Expense.findById(req.params.id);
@@ -82,15 +88,16 @@ const updateExpense = async (req, res) => {
         .json({ message: "Not authorized to update this expense" });
     }
 
-    expense.title = title || expense.title;
-    expense.amount = amount || expense.amount;
-    expense.category = category || expense.category;
-    expense.date = date || expense.date;
+    expense.title = title ? title.trim() : expense.title;
+    expense.amount = amount ? parseFloat(amount) : expense.amount;
+    expense.category = category ? category.trim() : expense.category;
+    expense.notes = notes ? notes.trim() : expense.notes;
 
     const updatedExpense = await expense.save();
     res.json(updatedExpense);
   } catch (error) {
-    res.status(500).json({ message: error.message });
+    console.error("Update Expense Error:", error);
+    res.status(500).json({ message: "Server error. Please try again later." });
   }
 };
 

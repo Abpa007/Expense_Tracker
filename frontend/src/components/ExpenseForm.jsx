@@ -12,6 +12,7 @@ const ExpenseForm = () => {
     amount: "",
     category: "Other",
     notes: "",
+    date: new Date().toISOString().substring(0, 10), // pre-fill with today
   });
 
   const handleChange = (e) => {
@@ -23,7 +24,13 @@ const ExpenseForm = () => {
 
   const handleSubmit = async (e) => {
     e.preventDefault();
-    if (!formData.title || !formData.amount || !formData.category) {
+
+    if (
+      !formData.title ||
+      !formData.amount ||
+      !formData.category ||
+      !formData.date
+    ) {
       toast.error("Please fill all required fields");
       return;
     }
@@ -36,9 +43,10 @@ const ExpenseForm = () => {
         amount: "",
         category: "Other",
         notes: "",
+        date: new Date().toISOString().substring(0, 10),
       });
     } catch (error) {
-      toast.error(error);
+      toast.error(error || "Failed to add expense");
     }
   };
 
@@ -61,6 +69,14 @@ const ExpenseForm = () => {
           placeholder="Amount"
           className="w-full border p-2 rounded"
           value={formData.amount}
+          onChange={handleChange}
+          required
+        />
+        <input
+          type="date"
+          name="date"
+          className="w-full border p-2 rounded"
+          value={formData.date}
           onChange={handleChange}
           required
         />

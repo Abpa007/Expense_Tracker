@@ -1,45 +1,14 @@
-import axios from "../../api/axiosInstance";
+import axiosInstance from "../../api/axiosInstance";
 
-// Create a new expense
-export const addExpense = async (expenseData, token) => {
-  const config = {
-    headers: {
-      Authorization: `Bearer ${token}`,
-    },
-  };
-  const { data } = await axios.post("/api/expenses", expenseData, config);
-  return data;
-};
+// ✅ Get all expenses
+export const getExpenses = () => axiosInstance.get("/expenses");
 
-// Get all expenses for the logged-in user
-export const getExpenses = async (token) => {
-  const config = {
-    headers: {
-      Authorization: `Bearer ${token}`,
-    },
-  };
-  const { data } = await axios.get("/api/expenses", config);
-  return data;
-};
+// ✅ Add a new expense
+export const addExpenseAPI = (data) => axiosInstance.post("/expenses", data);
 
-// Delete an expense by ID
-export const deleteExpense = async (id, token) => {
-  const config = {
-    headers: {
-      Authorization: `Bearer ${token}`,
-    },
-  };
-  const { data } = await axios.delete(`/api/expenses/${id}`, config);
-  return data;
-};
+// ✅ Delete an expense
+export const deleteExpenseAPI = (id) => axiosInstance.delete(`/expenses/${id}`);
 
-// Update an expense by ID
-export const updateExpense = async (id, updatedData, token) => {
-  const config = {
-    headers: {
-      Authorization: `Bearer ${token}`,
-    },
-  };
-  const { data } = await axios.put(`/api/expenses/${id}`, updatedData, config);
-  return data;
-};
+// ✅ Update an expense
+export const updateExpenseAPI = (id, data) =>
+  axiosInstance.put(`/expenses/${id}`, data);

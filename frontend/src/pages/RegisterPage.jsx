@@ -2,31 +2,35 @@ import React, { useState, useEffect } from "react";
 import { useDispatch, useSelector } from "react-redux";
 import { register } from "../features/auth/authSlice";
 import { useNavigate } from "react-router-dom";
+import { toast } from "react-toastify";
 
 const RegisterPage = () => {
   const dispatch = useDispatch();
   const navigate = useNavigate();
-  const { userInfo, loading, error } = useSelector((state) => state.auth);
+  const { user, loading, error } = useSelector((state) => state.auth);
 
   const [name, setName] = useState("");
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
 
   useEffect(() => {
-    if (userInfo) {
+    if (user) {
       navigate("/dashboard");
+      toast.success(`Welcome, ${user.name}!`);
     }
-  }, [userInfo, navigate]);
+  }, [user, navigate]);
 
   const handleSubmit = (e) => {
     e.preventDefault();
-    dispatch(register({ name, email, password }));
+    dispatch(register({ name, email, password }))
+      .unwrap()
+      .catch((err) => toast.error(err));
   };
 
   return (
     <div className="max-w-md mx-auto mt-10 bg-white shadow rounded p-6">
       <h2 className="text-2xl font-bold mb-4 text-center">Register</h2>
-      {error && <p className="text-red-500">{error}</p>}
+      {error && <p className="text-red-500 text-center">{error}</p>}
       <form onSubmit={handleSubmit} className="space-y-3">
         <input
           type="text"
@@ -35,6 +39,7 @@ const RegisterPage = () => {
           value={name}
           onChange={(e) => setName(e.target.value)}
           required
+          autoComplete="name"
         />
         <input
           type="email"
@@ -43,6 +48,7 @@ const RegisterPage = () => {
           value={email}
           onChange={(e) => setEmail(e.target.value)}
           required
+          autoComplete="email"
         />
         <input
           type="password"
@@ -51,11 +57,12 @@ const RegisterPage = () => {
           value={password}
           onChange={(e) => setPassword(e.target.value)}
           required
+          autoComplete="new-password"
         />
         <button
           type="submit"
           disabled={loading}
-          className="bg-blue-600 text-white w-full p-2 rounded hover:bg-blue-700"
+          className="bg-blue-600 text-white w-full p-2 rounded hover:bg-blue-700 transition"
         >
           {loading ? "Registering..." : "Register"}
         </button>

@@ -1,3 +1,4 @@
+// src/utils/constants.js
 export const CATEGORIES = [
   "Food",
   "Transport",

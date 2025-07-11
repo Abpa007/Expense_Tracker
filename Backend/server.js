@@ -7,16 +7,26 @@ dotenv.config();
 connectDB();
 
 const app = express();
-app.use(cors());
+
+// ✅ CORS configuration for frontend access
+app.use(
+  cors({
+    origin: "http://localhost:3000",
+    credentials: true,
+  })
+);
+
+// Parse incoming JSON requests
 app.use(express.json());
 
-// Routes
+// API Routes
 app.use("/api/auth", require("./routes/authRoutes"));
 app.use("/api/expenses", require("./routes/expenseRoutes"));
 
-// Error Middleware
+// Error handling middleware
 const { errorHandler } = require("./middleware/errorMiddleware");
 app.use(errorHandler);
 
+// Start server
 const PORT = process.env.PORT || 5000;
 app.listen(PORT, () => console.log(`✅ Server running on port ${PORT}`));

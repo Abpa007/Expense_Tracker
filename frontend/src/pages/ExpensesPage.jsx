@@ -1,107 +1,75 @@
-import React, { useState, useEffect } from "react";
+import React, { useEffect } from "react";
 import { useDispatch, useSelector } from "react-redux";
-import { fetchExpenses, addExpense, deleteExpense } from "../features/expenses/expenseSlice";
+import {
+  fetchExpenses,
+  deleteExpense,
+} from "../features/expenses/expenseSlice";
 import { useNavigate } from "react-router-dom";
 
 const ExpensesPage = () => {
   const dispatch = useDispatch();
   const navigate = useNavigate();
-  const { user } = useSelector((state) => state.auth);
+
   const { expenses, loading, error } = useSelector((state) => state.expenses);
+  const { user } = useSelector((state) => state.auth);
 
-  const [title, setTitle] = useState("");
-  const [amount, setAmount] = useState("");
-  const [category, setCategory] = useState("Other");
-
+  // Redirect if not logged in
   useEffect(() => {
     if (!user) {
-      navigate("/login");
-    } else {
+      navigate("/login", { replace: true });
+    }
+  }, [user, navigate]);
+
+  // Fetch expenses on mount
+  useEffect(() => {
+    if (user) {
       dispatch(fetchExpenses());
     }
-  }, [dispatch, navigate, user]);
-
-  const handleSubmit = (e) => {
-    e.preventDefault();
-    dispatch(addExpense({ title, amount: Number(amount), category }));
-    setTitle("");
-    setAmount("");
-    setCategory("Other");
-  };
+  }, [user, dispatch]);
 
   const handleDelete = (id) => {
-    dispatch(deleteExpense(id));
+    if (window.confirm("Are you sure you want to delete this expense?")) {
+      dispatch(deleteExpense(id));
+    }
   };
 
   return (
-    <div className="max-w-2xl mx-auto p-4 bg-white rounded shadow">
-      <h1 className="text-2xl font-bold mb-4">Expenses</h1>
+    <div className="max-w-3xl mx-auto p-4 bg-white rounded shadow mt-6">
+      <h1 className="text-2xl font-bold mb-4">Your Expenses</h1>
 
-      <form onSubmit={handleSubmit} className="space-y-3 mb-4">
-        <input
-          type="text"
-          placeholder="Title"
-          value={title}
-          onChange={(e) => setTitle(e.target.value)}
-          required
-          className="w-full border p-2 rounded"
-        />
-        <input
-          type="number"
-          placeholder="Amount"
-          value={amount}
-          onChange={(e) => setAmount(e.target.value)}
-          required
-          className="w-full border p-2 rounded"
-        />
-        <select
-          value={category}
-          onChange={(e) => setCategory(e.target.value)}
-          className="w-full border p-2 rounded"
-        >
-          <option value="Food">Food</option>
-          <option value="Transport">Transport</option>
-          <option value="Utilities">Utilities</option>
-          <option value="Health">Health</option>
-          <option value="Entertainment">Entertainment</option>
-          <option value="Other">Other</option>
-        </select>
-        <button
-          type="submit"
-          className="bg-blue-600 text-white w-full p-2 rounded hover:bg-blue-700"
-          disabled={loading}
-        >
-          {loading ? "Adding..." : "Add Expense"}
-        </button>
-      </form>
-
-      {loading && <p>Loading...</p>}
+      {loading && <p>Loading expenses...</p>}
       {error && <p className="text-red-500">{error}</p>}
 
-      {expenses.length === 0 ? (
-        <p>No expenses to display.</p>
+      {expenses.length === 0 && !loading ? (
+        <p>No expenses found.</p>
       ) : (
-        <ul className="space-y-2">
+        <div className="space-y-3">
           {expenses.map((expense) => (
-            <li
+            <div
               key={expense._id}
-              className="flex justify-between items-center p-2 border rounded"
+              className="flex justify-between items-center border p-3 rounded"
             >
               <div>
                 <p className="font-semibold">{expense.title}</p>
-                <p className="text-sm text-gray-500">
-                  ₹{expense.amount} • {expense.category}
+                <p className="text-sm text-gray-600">
+                  ₹{expense.amount} | {expense.category} |{" "}
+                  {new Date(expense.date).toLocaleDateString()}
                 </p>
+                {expense.notes && (
+                  <p className="text-xs text-gray-500 mt-1">
+                    Notes: {expense.notes}
+                  </p>
+                )}
               </div>
               <button
                 onClick={() => handleDelete(expense._id)}
-                className="text-red-500 hover:underline"
+                className="bg-red-500 text-white px-2 py-1 rounded hover:bg-red-600 text-sm"
               >
                 Delete
               </button>
-            </li>
+            </div>
           ))}
-        </ul>
+        </div>
       )}
     </div>
   );
