@@ -38,7 +38,7 @@ const EditExpenseModal = ({ isOpen, onClose, expense }) => {
       onClose();
     } catch (error) {
       console.error(error);
-      toast.error(error || "Failed to update expense");
+      toast.error(error?.message || "Failed to update expense");
     }
   };
 
@@ -49,32 +49,36 @@ const EditExpenseModal = ({ isOpen, onClose, expense }) => {
       className="fixed inset-0 z-50 flex items-center justify-center p-4"
     >
       <div
-        className="fixed inset-0 bg-black/50 backdrop-blur-sm"
+        className="fixed inset-0 bg-black/30 backdrop-blur-sm"
         aria-hidden="true"
       />
-      <Dialog.Panel className="relative bg-white dark:bg-gray-900 rounded-2xl shadow-2xl w-full max-w-md p-6 flex flex-col gap-6">
-        <Dialog.Title className="text-2xl font-bold text-gray-900 dark:text-gray-100 text-center">
+
+      <Dialog.Panel className="relative w-full max-w-md rounded-2xl bg-white shadow-xl p-6">
+        <Dialog.Title className="text-2xl font-bold text-center text-gray-800">
           Edit Expense
         </Dialog.Title>
-        <form onSubmit={handleSubmit} className="flex flex-col gap-4">
+
+        <form onSubmit={handleSubmit} className="flex flex-col gap-4 mt-4">
           <input
             type="text"
             placeholder="Title"
-            className="border border-gray-300 dark:border-gray-700 bg-white dark:bg-gray-800 rounded-lg p-3 focus:outline-none focus:ring-2 focus:ring-blue-500 transition"
+            className="border border-gray-300 rounded-lg p-3 focus:outline-none focus:ring-2 focus:ring-blue-400 transition text-gray-800 placeholder-gray-400 bg-gray-50"
             value={title}
             onChange={(e) => setTitle(e.target.value)}
             required
           />
+
           <input
             type="number"
             placeholder="Amount"
-            className="border border-gray-300 dark:border-gray-700 bg-white dark:bg-gray-800 rounded-lg p-3 focus:outline-none focus:ring-2 focus:ring-blue-500 transition"
+            className="border border-gray-300 rounded-lg p-3 focus:outline-none focus:ring-2 focus:ring-blue-400 transition text-gray-800 placeholder-gray-400 bg-gray-50"
             value={amount}
             onChange={(e) => setAmount(e.target.value)}
             required
           />
+
           <select
-            className="border border-gray-300 dark:border-gray-700 bg-white dark:bg-gray-800 rounded-lg p-3 focus:outline-none focus:ring-2 focus:ring-blue-500 transition"
+            className="border border-gray-300 rounded-lg p-3 focus:outline-none focus:ring-2 focus:ring-blue-400 transition text-gray-800 bg-gray-50"
             value={category}
             onChange={(e) => setCategory(e.target.value)}
             required
@@ -86,23 +90,25 @@ const EditExpenseModal = ({ isOpen, onClose, expense }) => {
             <option value="Entertainment">Entertainment</option>
             <option value="Other">Other</option>
           </select>
+
           <textarea
             placeholder="Notes (optional)"
-            className="border border-gray-300 dark:border-gray-700 bg-white dark:bg-gray-800 rounded-lg p-3 focus:outline-none focus:ring-2 focus:ring-blue-500 transition resize-none min-h-[80px]"
+            className="border border-gray-300 rounded-lg p-3 focus:outline-none focus:ring-2 focus:ring-blue-400 transition text-gray-800 placeholder-gray-400 bg-gray-50 resize-none min-h-[80px]"
             value={notes}
             onChange={(e) => setNotes(e.target.value)}
           />
-          <div className="flex justify-end gap-3">
+
+          <div className="flex justify-end gap-3 mt-2">
             <button
               type="button"
               onClick={onClose}
-              className="px-4 py-2 rounded-lg bg-gray-200 dark:bg-gray-700 text-gray-800 dark:text-gray-100 hover:bg-gray-300 dark:hover:bg-gray-600 transition"
+              className="px-4 py-2 rounded-lg bg-gray-200 text-gray-800 hover:bg-gray-300 transition"
             >
               Cancel
             </button>
             <button
               type="submit"
-              className="px-4 py-2 rounded-lg bg-blue-600 text-white hover:bg-blue-700 transition"
+              className="px-4 py-2 rounded-lg bg-blue-500 text-white hover:bg-blue-600 transition"
             >
               Update
             </button>
