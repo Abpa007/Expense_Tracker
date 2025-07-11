@@ -2,14 +2,10 @@ import React, { useState, useEffect } from "react";
 import { Dialog } from "@headlessui/react";
 import { useDispatch } from "react-redux";
 import { updateExpense } from "../features/expenses/expenseSlice";
+import { toast } from "react-toastify";
 
-const EditExpenseModal = ({
-  isOpen = false,
-  onClose = () => {},
-  expense = {},
-}) => {
+const EditExpenseModal = ({ isOpen, onClose, expense }) => {
   const dispatch = useDispatch();
-
   const [title, setTitle] = useState("");
   const [amount, setAmount] = useState("");
   const [category, setCategory] = useState("Other");
@@ -17,9 +13,9 @@ const EditExpenseModal = ({
 
   useEffect(() => {
     if (expense) {
-      setTitle(expense.title || "");
-      setAmount(expense.amount || "");
-      setCategory(expense.category || "Other");
+      setTitle(expense.title);
+      setAmount(expense.amount);
+      setCategory(expense.category);
       setNotes(expense.notes || "");
     }
   }, [expense]);
@@ -27,35 +23,35 @@ const EditExpenseModal = ({
   const handleSubmit = async (e) => {
     e.preventDefault();
 
-    if (!title.trim() || isNaN(amount) || Number(amount) <= 0) {
-      alert("Please fill in all fields correctly.");
-      return;
-    }
-
     try {
       await dispatch(
         updateExpense({
           id: expense._id,
-          data: {
+          updatedData: {
             title: title.trim(),
             amount: Number(amount),
-            category: category.trim(),
+            category,
             notes: notes.trim(),
           },
         })
       ).unwrap();
+
+      toast.success("Expense updated successfully");
       onClose();
-    } catch (err) {
-      console.error(err);
-      alert(err || "Failed to update expense");
+    } catch (error) {
+      console.error(error);
+      toast.error(error || "Failed to update expense");
     }
   };
 
   return (
-    <Dialog open={isOpen} onClose={onClose} className="relative z-50">
-      <div className="fixed inset-0 bg-black/30" aria-hidden="true" />
-      <div className="fixed inset-0 flex items-center justify-center p-4">
-        <Dialog.Panel className="w-full max-w-md bg-white rounded p-6 shadow-lg">
+    <Dialog
+      open={isOpen}
+      onClose={onClose}
+      className="fixed z-50 inset-0 overflow-y-auto"
+    >
+      <div className="flex items-center justify-center min-h-screen px-4">
+        <Dialog.Panel className="bg-white rounded p-6 w-full max-w-md shadow">
           <Dialog.Title className="text-lg font-bold mb-4">
             Edit Expense
           </Dialog.Title>
@@ -95,19 +91,20 @@ const EditExpenseModal = ({
               value={notes}
               onChange={(e) => setNotes(e.target.value)}
             />
+
             <div className="flex justify-end space-x-2">
               <button
                 type="button"
                 onClick={onClose}
-                className="px-4 py-2 bg-gray-300 rounded hover:bg-gray-400"
+                className="bg-gray-300 text-gray-700 px-4 py-2 rounded hover:bg-gray-400"
               >
                 Cancel
               </button>
               <button
                 type="submit"
-                className="px-4 py-2 bg-blue-600 text-white rounded hover:bg-blue-700"
+                className="bg-blue-600 text-white px-4 py-2 rounded hover:bg-blue-700"
               >
-                Save Changes
+                Update
               </button>
             </div>
           </form>
