@@ -1,12 +1,9 @@
 import axiosInstance from "../../api/axiosInstance";
 
-// Register user
-export const registerUserAPI = (userData) =>
-  axiosInstance.post("/auth/register", userData);
+// ✅ API calls for authentication
+export const registerUserAPI = (data) =>
+  axiosInstance.post("/auth/register", data);
 
-// Login user
-export const loginUserAPI = (userData) =>
-  axiosInstance.post("/auth/login", userData);
+export const loginUserAPI = (data) => axiosInstance.post("/auth/login", data);
 
-// Get user profile
 export const getUserProfileAPI = () => axiosInstance.get("/auth/profile");

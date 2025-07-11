@@ -7,7 +7,7 @@ import {
   deleteExpense,
 } from "../features/expenses/expenseSlice";
 import { useNavigate } from "react-router-dom";
-import EditExpenseModal from "../components/EditExpenseModal";
+import EditExpenseModal from "../components/EditExpenseModel";
 import DatePicker from "react-datepicker";
 import "react-datepicker/dist/react-datepicker.css";
 import toast, { Toaster } from "react-hot-toast";

@@ -44,7 +44,7 @@ const AddExpensePage = () => {
       setCategory("Other");
       setNotes("");
 
-      navigate("/expenses");
+      navigate("/dashboard");
     } catch (error) {
       console.error(error);
       alert(error || "Failed to add expense");

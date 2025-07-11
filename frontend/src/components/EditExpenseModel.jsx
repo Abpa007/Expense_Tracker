@@ -3,25 +3,35 @@ import { Dialog } from "@headlessui/react";
 import { useDispatch } from "react-redux";
 import { updateExpense } from "../features/expenses/expenseSlice";
 
-const EditExpenseModal = ({ isOpen, onClose, expense }) => {
+const EditExpenseModal = ({
+  isOpen = false,
+  onClose = () => {},
+  expense = {},
+}) => {
   const dispatch = useDispatch();
 
   const [title, setTitle] = useState("");
   const [amount, setAmount] = useState("");
   const [category, setCategory] = useState("Other");
-  const [date, setDate] = useState("");
+  const [notes, setNotes] = useState("");
 
   useEffect(() => {
     if (expense) {
       setTitle(expense.title || "");
       setAmount(expense.amount || "");
       setCategory(expense.category || "Other");
-      setDate(expense.date ? expense.date.slice(0, 10) : "");
+      setNotes(expense.notes || "");
     }
   }, [expense]);
 
   const handleSubmit = async (e) => {
     e.preventDefault();
+
+    if (!title.trim() || isNaN(amount) || Number(amount) <= 0) {
+      alert("Please fill in all fields correctly.");
+      return;
+    }
+
     try {
       await dispatch(
         updateExpense({
@@ -29,31 +39,27 @@ const EditExpenseModal = ({ isOpen, onClose, expense }) => {
           data: {
             title: title.trim(),
             amount: Number(amount),
-            category,
-            date,
+            category: category.trim(),
+            notes: notes.trim(),
           },
         })
       ).unwrap();
       onClose();
-    } catch (error) {
-      console.error(error);
-      alert(error || "Failed to update expense");
+    } catch (err) {
+      console.error(err);
+      alert(err || "Failed to update expense");
     }
   };
 
   return (
-    <Dialog
-      open={isOpen}
-      onClose={onClose}
-      className="fixed z-50 inset-0 overflow-y-auto"
-    >
-      <div className="flex items-center justify-center min-h-screen px-4">
-        <Dialog.Overlay className="fixed inset-0 bg-black opacity-30" />
-        <div className="bg-white rounded-lg shadow-lg max-w-md w-full p-6 z-50">
+    <Dialog open={isOpen} onClose={onClose} className="relative z-50">
+      <div className="fixed inset-0 bg-black/30" aria-hidden="true" />
+      <div className="fixed inset-0 flex items-center justify-center p-4">
+        <Dialog.Panel className="w-full max-w-md bg-white rounded p-6 shadow-lg">
           <Dialog.Title className="text-lg font-bold mb-4">
             Edit Expense
           </Dialog.Title>
-          <form onSubmit={handleSubmit} className="space-y-3">
+          <form onSubmit={handleSubmit} className="space-y-4">
             <input
               type="text"
               placeholder="Title"
@@ -83,12 +89,11 @@ const EditExpenseModal = ({ isOpen, onClose, expense }) => {
               <option value="Entertainment">Entertainment</option>
               <option value="Other">Other</option>
             </select>
-            <input
-              type="date"
+            <textarea
+              placeholder="Notes (optional)"
               className="w-full border p-2 rounded"
-              value={date}
-              onChange={(e) => setDate(e.target.value)}
-              required
+              value={notes}
+              onChange={(e) => setNotes(e.target.value)}
             />
             <div className="flex justify-end space-x-2">
               <button
@@ -102,11 +107,11 @@ const EditExpenseModal = ({ isOpen, onClose, expense }) => {
                 type="submit"
                 className="px-4 py-2 bg-blue-600 text-white rounded hover:bg-blue-700"
               >
-                Save
+                Save Changes
               </button>
             </div>
           </form>
-        </div>
+        </Dialog.Panel>
       </div>
     </Dialog>
   );

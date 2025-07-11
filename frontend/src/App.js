@@ -4,7 +4,7 @@ import Header from "./components/Header";
 import ProtectedRoute from "./components/ProtectedRoute";
 import Loader from "./components/Loader";
 
-// Lazy load pages for better performance
+// Lazy load pages for performance
 const LoginPage = lazy(() => import("./pages/LoginPage"));
 const RegisterPage = lazy(() => import("./pages/RegisterPage"));
 const DashboardPage = lazy(() => import("./pages/DashboardPage"));
@@ -13,7 +13,7 @@ const AddExpensePage = lazy(() => import("./pages/AddExpensePage"));
 
 const App = () => {
   return (
-    <Router>
+    <Router future={{ v7_startTransition: true, v7_relativeSplatPath: true }}>
       <Header />
       <main className="container mx-auto p-4">
         <Suspense fallback={<Loader />}>
@@ -23,6 +23,14 @@ const App = () => {
             <Route path="/register" element={<RegisterPage />} />
 
             {/* Protected Routes */}
+            <Route
+              path="/"
+              element={
+                <ProtectedRoute>
+                  <DashboardPage />
+                </ProtectedRoute>
+              }
+            />
             <Route
               path="/dashboard"
               element={
@@ -44,14 +52,6 @@ const App = () => {
               element={
                 <ProtectedRoute>
                   <AddExpensePage />
-                </ProtectedRoute>
-              }
-            />
-            <Route
-              path="/"
-              element={
-                <ProtectedRoute>
-                  <DashboardPage />
                 </ProtectedRoute>
               }
             />
