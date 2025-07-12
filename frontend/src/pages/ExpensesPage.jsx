@@ -68,9 +68,9 @@ const ExpensePage = () => {
   ).sort((a, b) => b - a);
 
   return (
-    <div className="max-w-4xl mx-auto p-4 sm:p-6 bg-gradient-to-br from-white via-gray-50 to-gray-100 rounded-2xl shadow-xl mt-6">
+    <div className="max-w-4xl mx-auto p-4 sm:p-6 bg-gradient-to-br from-[#fdfbfb] via-[#ebedee] to-[#dfe9f3] rounded-2xl shadow-2xl mt-6">
       <Toaster position="top-right" />
-      <h1 className="text-2xl sm:text-3xl md:text-4xl font-extrabold mb-6 text-center text-gray-800">
+      <h1 className="text-3xl sm:text-4xl md:text-5xl font-extrabold mb-6 text-center text-gray-800 drop-shadow">
         Expense Tracker
       </h1>
 
@@ -87,7 +87,7 @@ const ExpensePage = () => {
         <select
           value={selectedYear}
           onChange={(e) => setSelectedYear(e.target.value)}
-          className="border border-gray-300 p-2 rounded-lg w-32 focus:outline-none focus:ring-2 focus:ring-blue-400"
+          className="border border-gray-300 p-2 rounded-lg w-32 focus:outline-none focus:ring-2 focus:ring-[#4c6ef5] bg-white shadow-sm"
         >
           <option value="">All Years</option>
           {years.map((year) => (
@@ -100,7 +100,7 @@ const ExpensePage = () => {
         <select
           value={selectedMonth}
           onChange={(e) => setSelectedMonth(e.target.value)}
-          className="border border-gray-300 p-2 rounded-lg w-40 focus:outline-none focus:ring-2 focus:ring-blue-400"
+          className="border border-gray-300 p-2 rounded-lg w-40 focus:outline-none focus:ring-2 focus:ring-[#4c6ef5] bg-white shadow-sm"
         >
           <option value="">All Months</option>
           {Array.from({ length: 12 }, (_, idx) => {
@@ -121,11 +121,33 @@ const ExpensePage = () => {
             setSelectedYear("");
             setSelectedMonth("");
           }}
-          className="bg-blue-500 hover:bg-blue-600 text-white px-4 py-2 rounded-lg transition shadow-sm"
+          className="bg-gradient-to-r from-[#4c6ef5] to-[#15aabf] hover:from-[#3b5bdb] hover:to-[#1098ad] text-white px-4 py-2 rounded-lg transition shadow-md"
         >
           Clear Filters
         </button>
       </div>
+
+      {/* Show current date total expense */}
+      {(() => {
+        const today = new Date();
+        const todayKey = today.toLocaleDateString("en-GB");
+        const todayExpenses = expenses.filter(
+          (expense) =>
+            new Date(expense.date).toLocaleDateString("en-GB") === todayKey
+        );
+        const todayTotal = todayExpenses.reduce(
+          (sum, e) => sum + Number(e.amount),
+          0
+        );
+
+        return (
+          <div className="text-center mb-6">
+            <h2 className="text-xl sm:text-2xl md:text-3xl font-bold text-[#4c6ef5] drop-shadow-sm">
+              Today ({todayKey}): ₹{todayTotal}
+            </h2>
+          </div>
+        );
+      })()}
 
       {Object.keys(groupedExpenses).length === 0 ? (
         <p className="text-center text-gray-500 italic">
@@ -150,14 +172,27 @@ const ExpensePage = () => {
                 })
                 .map((date) => (
                   <div key={date} className="mb-4">
-                    <h3 className="text-lg font-medium mb-2 text-gray-600">
-                      {date}
-                    </h3>
+                    {(() => {
+                      const dayTotal = groupedExpenses[month][date].reduce(
+                        (sum, e) => sum + Number(e.amount),
+                        0
+                      );
+                      const todayKey = new Date().toLocaleDateString("en-GB");
+                      const isToday = date === todayKey;
+                      return (
+                        <h3 className="text-lg sm:text-xl font-semibold mb-2 text-gray-700">
+                          {isToday
+                            ? `Today (${date}): ₹${dayTotal}`
+                            : `${date}: ₹${dayTotal}`}
+                        </h3>
+                      );
+                    })()}
+
                     <ul className="space-y-3">
                       {groupedExpenses[month][date].map((expense) => (
                         <li
                           key={expense._id}
-                          className="flex flex-col sm:flex-row sm:justify-between sm:items-center border border-gray-200 p-4 rounded-xl bg-white hover:bg-gray-50 transition shadow-sm"
+                          className="flex flex-col sm:flex-row sm:justify-between sm:items-center border border-gray-200 p-4 rounded-xl bg-white hover:bg-gray-50 transition shadow-md"
                         >
                           <div className="flex flex-col text-center sm:text-left">
                             <p className="font-semibold text-gray-800">

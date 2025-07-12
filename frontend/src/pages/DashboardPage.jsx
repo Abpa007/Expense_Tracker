@@ -51,6 +51,7 @@ const DashboardPage = () => {
   };
 
   const today = new Date();
+  const todayString = today.toLocaleDateString("en-GB");
   const isDateFilterApplied = startDate || endDate;
 
   const filteredExpenses = expenses.filter((expense) => {
@@ -78,6 +79,13 @@ const DashboardPage = () => {
     }
   });
 
+  const todayTotal = expenses
+    .filter((expense) => {
+      const expenseDate = new Date(expense.date).toLocaleDateString("en-GB");
+      return expenseDate === todayString;
+    })
+    .reduce((acc, expense) => acc + expense.amount, 0);
+
   const sortedExpenses = filteredExpenses.sort(
     (a, b) => new Date(b.date) - new Date(a.date)
   );
@@ -97,18 +105,17 @@ const DashboardPage = () => {
   );
 
   return (
-    <div className="min-h-screen bg-gray-100 p-4 flex flex-col items-center">
+    <div className="min-h-screen bg-gradient-to-br from-blue-50 via-white to-blue-100 p-4 flex flex-col items-center">
       <Toaster />
       <div className="w-full max-w-4xl">
-        {/* Header with filters */}
-        <div className="sticky top-0 z-10 bg-white/90 backdrop-blur rounded-xl shadow p-4 mb-4 flex flex-col gap-3 md:flex-row md:items-center md:justify-between">
+        <div className="sticky top-0 z-10 bg-white/80 backdrop-blur rounded-xl shadow-lg p-4 mb-4 flex flex-col gap-3 md:flex-row md:items-center md:justify-between">
           <div className="text-center md:text-left">
-            <h1 className="text-2xl md:text-3xl font-bold text-gray-800">
+            <h1 className="text-3xl md:text-4xl font-extrabold text-blue-800">
               Expense Dashboard
             </h1>
-            <p className="text-sm text-gray-500">
+            <p className="text-sm text-gray-600">
               {isDateFilterApplied
-                ? `Showing filtered expenses${
+                ? `Showing filtered expenses$${
                     categoryFilter ? ` in ${categoryFilter}` : ""
                   }`
                 : categoryFilter
@@ -121,7 +128,7 @@ const DashboardPage = () => {
             <select
               value={categoryFilter}
               onChange={(e) => setCategoryFilter(e.target.value)}
-              className="border border-gray-300 p-2 rounded-md bg-white text-gray-800 focus:outline-blue-500"
+              className="border border-gray-300 p-2 rounded-md bg-white text-gray-800 focus:outline-none focus:ring-2 focus:ring-blue-300"
             >
               <option value="">All Categories</option>
               <option value="Food">Food</option>
@@ -135,13 +142,13 @@ const DashboardPage = () => {
               selected={startDate}
               onChange={(date) => setStartDate(date)}
               placeholderText="Start Date"
-              className="border border-gray-300 p-2 rounded-md bg-white text-gray-800 focus:outline-blue-500"
+              className="border border-gray-300 p-2 rounded-md bg-white text-gray-800 focus:outline-none focus:ring-2 focus:ring-blue-300"
             />
             <DatePicker
               selected={endDate}
               onChange={(date) => setEndDate(date)}
               placeholderText="End Date"
-              className="border border-gray-300 p-2 rounded-md bg-white text-gray-800 focus:outline-blue-500"
+              className="border border-gray-300 p-2 rounded-md bg-white text-gray-800 focus:outline-none focus:ring-2 focus:ring-blue-300"
             />
             <button
               onClick={() => {
@@ -149,27 +156,31 @@ const DashboardPage = () => {
                 setStartDate(null);
                 setEndDate(null);
               }}
-              className="bg-blue-500 text-white px-4 py-2 rounded-md hover:bg-blue-600 transition"
+              className="bg-blue-500 text-white px-4 py-2 rounded-md hover:bg-blue-600 transition shadow"
             >
               Clear
             </button>
             <button
               onClick={() => downloadCSV(filteredExpenses, "expenses.csv")}
-              className="bg-green-500 text-white px-4 py-2 rounded-md hover:bg-green-600 transition"
+              className="bg-green-500 text-white px-4 py-2 rounded-md hover:bg-green-600 transition shadow"
             >
               Download CSV
             </button>
           </div>
         </div>
 
-        {/* Total */}
         <div className="bg-white rounded-xl shadow p-4">
+          <p className="text-lg font-semibold text-gray-700 mb-2 text-center md:text-left">
+            Today ({todayString}):{" "}
+            <span className="text-blue-600 font-bold">
+              ₹{todayTotal.toFixed(2)}
+            </span>
+          </p>
           <p className="text-lg font-semibold text-gray-700 mb-3 text-center md:text-left">
-            Total:{" "}
+            Filtered Total:{" "}
             <span className="text-blue-600 font-bold">₹{total.toFixed(2)}</span>
           </p>
 
-          {/* Expenses List */}
           {currentExpenses.length === 0 ? (
             <p className="text-center text-gray-500">No expenses found.</p>
           ) : (
@@ -177,7 +188,7 @@ const DashboardPage = () => {
               {currentExpenses.map((expense) => (
                 <li
                   key={expense._id}
-                  className="flex flex-col md:flex-row md:justify-between md:items-center bg-gray-50 border border-gray-200 rounded-lg p-4 hover:shadow transition"
+                  className="flex flex-col md:flex-row md:justify-between md:items-center bg-white border border-gray-200 rounded-lg p-4 hover:shadow-md transition"
                 >
                   <div>
                     <p className="font-medium text-gray-800">{expense.title}</p>
@@ -189,13 +200,13 @@ const DashboardPage = () => {
                   <div className="flex gap-2 mt-2 md:mt-0">
                     <button
                       onClick={() => handleEdit(expense)}
-                      className="bg-yellow-400 text-white px-3 py-1 rounded-md hover:bg-yellow-500 transition text-sm"
+                      className="bg-yellow-400 text-white px-3 py-1 rounded-md hover:bg-yellow-500 transition text-sm shadow"
                     >
                       Edit
                     </button>
                     <button
                       onClick={() => handleDelete(expense._id)}
-                      className="bg-red-500 text-white px-3 py-1 rounded-md hover:bg-red-600 transition text-sm"
+                      className="bg-red-500 text-white px-3 py-1 rounded-md hover:bg-red-600 transition text-sm shadow"
                     >
                       Delete
                     </button>
@@ -205,7 +216,6 @@ const DashboardPage = () => {
             </ul>
           )}
 
-          {/* Pagination */}
           {filteredExpenses.length > expensesPerPage && (
             <div className="flex justify-center mt-4 gap-2 flex-wrap">
               {Array.from(
@@ -230,7 +240,6 @@ const DashboardPage = () => {
           )}
         </div>
 
-        {/* Charts */}
         <div className="mt-6 bg-white rounded-xl shadow p-4">
           <ExpenseCharts
             expenses={expenses}
@@ -242,7 +251,6 @@ const DashboardPage = () => {
           />
         </div>
 
-        {/* Footer */}
         <footer className="mt-8 text-center text-xs text-gray-500">
           Expense Tracker © {new Date().getFullYear()} | Built by Abhay Panchal
         </footer>

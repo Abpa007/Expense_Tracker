@@ -14,16 +14,18 @@ import {
   ResponsiveContainer,
 } from "recharts";
 
+// Modern soft color palette
 const COLORS = [
-  "#6366F1",
-  "#10B981",
-  "#F59E0B",
-  "#EF4444",
-  "#8B5CF6",
-  "#EC4899",
-  "#0EA5E9",
+  "#60A5FA", // Blue
+  "#34D399", // Mint Green
+  "#FBBF24", // Amber
+  "#F87171", // Soft Red
+  "#A78BFA", // Soft Purple
+  "#F472B6", // Pink
+  "#38BDF8", // Sky Blue
 ];
 
+// Custom tooltip with full date on hover for BarChart
 const CustomTooltip = ({ active, payload, label }) => {
   if (active && payload && payload.length) {
     const today = new Date();
@@ -56,6 +58,7 @@ const ExpenseCharts = ({ expenses, filter }) => {
   const endDate = filter?.endDate ? new Date(filter.endDate) : null;
   const categoryFilter = filter?.category || "";
 
+  // Filter data for PieChart
   const pieChartExpenses = expenses.filter((expense) => {
     const expenseDate = new Date(expense.date);
     if (startDate && expenseDate < startDate) return false;
@@ -81,6 +84,7 @@ const ExpenseCharts = ({ expenses, filter }) => {
     return acc;
   }, []);
 
+  // Daily data for BarChart
   const dailyData = Array.from({ length: daysInMonth }, (_, i) => {
     const date = new Date(currentYear, currentMonth, i + 1);
     const label = (i + 1).toString();
@@ -95,6 +99,7 @@ const ExpenseCharts = ({ expenses, filter }) => {
     return { name: label, value: totalForDay };
   });
 
+  // Dynamic headings
   let headingText = `Category-wise Expenses for Today (${today.toLocaleDateString()})`;
   if (startDate && endDate) {
     headingText = `Category-wise Expenses (${startDate.toLocaleDateString()} - ${endDate.toLocaleDateString()})`;
@@ -114,14 +119,15 @@ const ExpenseCharts = ({ expenses, filter }) => {
 
   return (
     <div className="grid grid-cols-1 lg:grid-cols-2 gap-6 mt-6">
-      <div className="bg-white rounded-2xl shadow-lg p-6 flex flex-col items-center">
-        <h2 className="text-center text-lg font-semibold text-gray-800 mb-4">
+      {/* Pie Chart Card */}
+      <div className="bg-white rounded-xl shadow p-4 flex flex-col items-center w-full">
+        <h2 className="text-center text-base md:text-lg font-semibold text-gray-800 mb-4">
           {headingText}
         </h2>
         {categoryData.length === 0 ? (
           <p className="text-center text-gray-500">No data to display</p>
         ) : (
-          <ResponsiveContainer width="100%" height={300}>
+          <ResponsiveContainer width="100%" height={280}>
             <PieChart>
               <Pie
                 data={categoryData}
@@ -129,8 +135,10 @@ const ExpenseCharts = ({ expenses, filter }) => {
                 nameKey="name"
                 cx="50%"
                 cy="50%"
-                outerRadius={100}
-                label
+                outerRadius={80}
+                label={({ name, percent }) =>
+                  `${name} (${(percent * 100).toFixed(0)}%)`
+                }
               >
                 {categoryData.map((_, index) => (
                   <Cell
@@ -145,33 +153,40 @@ const ExpenseCharts = ({ expenses, filter }) => {
         )}
       </div>
 
-      <div className="bg-white rounded-2xl shadow-lg p-6 flex flex-col items-center">
-        <h2 className="text-center text-lg font-semibold text-gray-800 mb-4">
+      {/* Bar Chart Card */}
+      <div className="bg-white rounded-xl shadow p-4 flex flex-col items-center w-full">
+        <h2 className="text-center text-base md:text-lg font-semibold text-gray-800 mb-4">
           {trendHeadingText}
         </h2>
         {dailyData.every((item) => item.value === 0) ? (
           <p className="text-center text-gray-500">No data to display</p>
         ) : (
-          <ResponsiveContainer width="100%" height={300}>
+          <ResponsiveContainer width="100%" height={280}>
             <BarChart
               data={dailyData}
-              margin={{ top: 10, right: 30, left: 0, bottom: 10 }}
+              margin={{ top: 10, right: 20, left: -10, bottom: 10 }}
             >
               <CartesianGrid strokeDasharray="3 3" stroke="#e5e7eb" />
               <XAxis
                 dataKey="name"
                 stroke="#6b7280"
-                tick={{ fontSize: 11 }}
+                tick={{ fontSize: 10 }}
                 interval={4}
               />
-              <YAxis stroke="#6b7280" tick={{ fontSize: 11 }} />
+              <YAxis stroke="#6b7280" tick={{ fontSize: 10 }} />
               <Tooltip content={<CustomTooltip />} />
               <Bar
                 dataKey="value"
-                fill="#6366F1"
-                radius={[8, 8, 0, 0]}
-                barSize={20}
+                fill="url(#gradient)"
+                radius={[6, 6, 0, 0]}
+                barSize={16}
               />
+              <defs>
+                <linearGradient id="gradient" x1="0" y1="0" x2="0" y2="1">
+                  <stop offset="0%" stopColor="#60A5FA" />
+                  <stop offset="100%" stopColor="#6366F1" />
+                </linearGradient>
+              </defs>
             </BarChart>
           </ResponsiveContainer>
         )}
