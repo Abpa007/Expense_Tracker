@@ -1,3 +1,5 @@
+// src/components/ExpenseCharts.jsx
+
 import React from "react";
 import {
   PieChart,
@@ -35,17 +37,20 @@ const ExpenseCharts = ({ expenses, filter }) => {
     ? new Date(filter.endDate)
     : new Date(currentYear, currentMonth, daysInMonth);
 
+  // Filter expenses within the range
   const filteredExpenses = expenses.filter((expense) => {
     const expenseDate = new Date(expense.date);
     return expenseDate >= startDate && expenseDate <= endDate;
   });
 
+  // Build daily data including zero expense days
   const dailyData = [];
   const days = Math.ceil((endDate - startDate) / (1000 * 60 * 60 * 24)) + 1;
 
   for (let i = 0; i < days; i++) {
     const date = new Date(startDate);
     date.setDate(startDate.getDate() + i);
+
     const label = `${date.getDate()} ${date.toLocaleString("default", {
       month: "short",
     })}`;
@@ -60,6 +65,7 @@ const ExpenseCharts = ({ expenses, filter }) => {
     dailyData.push({ name: label, value: totalForDay });
   }
 
+  // Build category data for Pie Chart
   const categoryData = filteredExpenses.reduce((acc, expense) => {
     const found = acc.find((item) => item.name === expense.category);
     if (found) {
@@ -70,24 +76,35 @@ const ExpenseCharts = ({ expenses, filter }) => {
     return acc;
   }, []);
 
+  // Heading text logic
   let headingText = `Category-wise Expenses for Today (${today.toLocaleDateString()})`;
-  if (filter?.startDate && filter?.endDate) {
-    headingText = `Category-wise Expenses between ${startDate.toLocaleDateString()} and ${endDate.toLocaleDateString()}`;
-  } else if (!filter?.startDate && filter?.endDate) {
-    headingText = `Category-wise Expenses till ${endDate.toLocaleDateString()}`;
-  }
-
   let trendHeadingText = `Expense Trend for ${today.toLocaleString("default", {
     month: "long",
   })} ${currentYear}`;
+
   if (filter?.startDate && filter?.endDate) {
-    trendHeadingText = `Expense Trend between ${startDate.toLocaleDateString()} and ${endDate.toLocaleDateString()}`;
+    headingText = `Category-wise Expenses (${new Date(
+      filter.startDate
+    ).toLocaleDateString()} - ${new Date(
+      filter.endDate
+    ).toLocaleDateString()})`;
+    trendHeadingText = `Expense Trend (${new Date(
+      filter.startDate
+    ).toLocaleDateString()} - ${new Date(
+      filter.endDate
+    ).toLocaleDateString()})`;
   } else if (!filter?.startDate && filter?.endDate) {
-    trendHeadingText = `Expense Trend till ${endDate.toLocaleDateString()}`;
+    headingText = `Category-wise Expenses till ${new Date(
+      filter.endDate
+    ).toLocaleDateString()}`;
+    trendHeadingText = `Expense Trend till ${new Date(
+      filter.endDate
+    ).toLocaleDateString()}`;
   }
 
   return (
     <div className="grid grid-cols-1 md:grid-cols-2 gap-6 mt-6">
+      {/* Pie Chart */}
       <div className="bg-white dark:bg-neutral-800 rounded-xl shadow p-6">
         <h2 className="text-center text-lg font-semibold text-neutral-800 dark:text-neutral-200 mb-4">
           {headingText}
@@ -121,6 +138,7 @@ const ExpenseCharts = ({ expenses, filter }) => {
         )}
       </div>
 
+      {/* Bar Chart */}
       <div className="bg-white dark:bg-neutral-800 rounded-xl shadow p-6">
         <h2 className="text-center text-lg font-semibold text-neutral-800 dark:text-neutral-200 mb-4">
           {trendHeadingText}
@@ -137,7 +155,8 @@ const ExpenseCharts = ({ expenses, filter }) => {
                 dataKey="name"
                 stroke="#6b7280"
                 tick={{ fontSize: 10 }}
-                interval={window.innerWidth < 768 ? 2 : 0}
+                interval={0}
+                minTickGap={10}
               />
               <YAxis stroke="#6b7280" />
               <Tooltip />
