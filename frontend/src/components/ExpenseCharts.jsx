@@ -13,17 +13,54 @@ import {
 } from "recharts";
 
 const COLORS = [
-  "#0088FE",
-  "#00C49F",
-  "#FFBB28",
-  "#FF8042",
-  "#AA66CC",
-  "#FF4444",
-  "#0099CC",
+  "#6366F1",
+  "#10B981",
+  "#F59E0B",
+  "#EF4444",
+  "#8B5CF6",
+  "#EC4899",
+  "#0EA5E9",
 ];
 
-const ExpenseCharts = ({ expenses }) => {
-  const categoryData = expenses.reduce((acc, expense) => {
+const ExpenseCharts = ({ expenses, filter }) => {
+  const today = new Date();
+  const currentYear = today.getFullYear();
+  const currentMonth = today.getMonth();
+  const daysInMonth = new Date(currentYear, currentMonth + 1, 0).getDate();
+
+  const startDate = filter?.startDate
+    ? new Date(filter.startDate)
+    : new Date(currentYear, currentMonth, 1);
+  const endDate = filter?.endDate
+    ? new Date(filter.endDate)
+    : new Date(currentYear, currentMonth, daysInMonth);
+
+  const filteredExpenses = expenses.filter((expense) => {
+    const expenseDate = new Date(expense.date);
+    return expenseDate >= startDate && expenseDate <= endDate;
+  });
+
+  const dailyData = [];
+  const days = Math.ceil((endDate - startDate) / (1000 * 60 * 60 * 24)) + 1;
+
+  for (let i = 0; i < days; i++) {
+    const date = new Date(startDate);
+    date.setDate(startDate.getDate() + i);
+    const label = `${date.getDate()} ${date.toLocaleString("default", {
+      month: "short",
+    })}`;
+
+    const totalForDay = filteredExpenses.reduce((sum, expense) => {
+      const expenseDate = new Date(expense.date);
+      return expenseDate.toDateString() === date.toDateString()
+        ? sum + expense.amount
+        : sum;
+    }, 0);
+
+    dailyData.push({ name: label, value: totalForDay });
+  }
+
+  const categoryData = filteredExpenses.reduce((acc, expense) => {
     const found = acc.find((item) => item.name === expense.category);
     if (found) {
       found.value += expense.amount;
@@ -33,32 +70,32 @@ const ExpenseCharts = ({ expenses }) => {
     return acc;
   }, []);
 
-  const monthlyData = expenses.reduce((acc, expense) => {
-    const date = new Date(expense.date);
-    const monthYear = `${date.getMonth() + 1}-${date.getFullYear()}`;
-    const found = acc.find((item) => item.name === monthYear);
-    if (found) {
-      found.value += expense.amount;
-    } else {
-      acc.push({ name: monthYear, value: expense.amount });
-    }
-    return acc;
-  }, []);
+  let headingText = `Category-wise Expenses for Today (${today.toLocaleDateString()})`;
+  if (filter?.startDate && filter?.endDate) {
+    headingText = `Category-wise Expenses between ${startDate.toLocaleDateString()} and ${endDate.toLocaleDateString()}`;
+  } else if (!filter?.startDate && filter?.endDate) {
+    headingText = `Category-wise Expenses till ${endDate.toLocaleDateString()}`;
+  }
 
-  monthlyData.sort((a, b) => {
-    const [aMonth, aYear] = a.name.split("-").map(Number);
-    const [bMonth, bYear] = b.name.split("-").map(Number);
-    return aYear !== bYear ? aYear - bYear : aMonth - bMonth;
-  });
+  let trendHeadingText = `Expense Trend for ${today.toLocaleString("default", {
+    month: "long",
+  })} ${currentYear}`;
+  if (filter?.startDate && filter?.endDate) {
+    trendHeadingText = `Expense Trend between ${startDate.toLocaleDateString()} and ${endDate.toLocaleDateString()}`;
+  } else if (!filter?.startDate && filter?.endDate) {
+    trendHeadingText = `Expense Trend till ${endDate.toLocaleDateString()}`;
+  }
 
   return (
     <div className="grid grid-cols-1 md:grid-cols-2 gap-6 mt-6">
-      <div className="bg-white rounded-2xl shadow p-6">
-        <h2 className="text-center text-xl font-semibold mb-4">
-          Category-wise Expense Distribution
+      <div className="bg-white dark:bg-neutral-800 rounded-xl shadow p-6">
+        <h2 className="text-center text-lg font-semibold text-neutral-800 dark:text-neutral-200 mb-4">
+          {headingText}
         </h2>
         {categoryData.length === 0 ? (
-          <p className="text-center text-gray-500">No data to display</p>
+          <p className="text-center text-neutral-500 dark:text-neutral-400">
+            No data to display
+          </p>
         ) : (
           <ResponsiveContainer width="100%" height={300}>
             <PieChart>
@@ -84,20 +121,27 @@ const ExpenseCharts = ({ expenses }) => {
         )}
       </div>
 
-      <div className="bg-white rounded-2xl shadow p-6">
-        <h2 className="text-center text-xl font-semibold mb-4">
-          Monthly Expense Trend
+      <div className="bg-white dark:bg-neutral-800 rounded-xl shadow p-6">
+        <h2 className="text-center text-lg font-semibold text-neutral-800 dark:text-neutral-200 mb-4">
+          {trendHeadingText}
         </h2>
-        {monthlyData.length === 0 ? (
-          <p className="text-center text-gray-500">No data to display</p>
+        {dailyData.every((item) => item.value === 0) ? (
+          <p className="text-center text-neutral-500 dark:text-neutral-400">
+            No data to display
+          </p>
         ) : (
           <ResponsiveContainer width="100%" height={300}>
-            <BarChart data={monthlyData}>
-              <CartesianGrid strokeDasharray="3 3" />
-              <XAxis dataKey="name" />
-              <YAxis />
+            <BarChart data={dailyData}>
+              <CartesianGrid strokeDasharray="3 3" stroke="#d1d5db" />
+              <XAxis
+                dataKey="name"
+                stroke="#6b7280"
+                tick={{ fontSize: 10 }}
+                interval={window.innerWidth < 768 ? 2 : 0}
+              />
+              <YAxis stroke="#6b7280" />
               <Tooltip />
-              <Bar dataKey="value" fill="#00C49F" radius={[4, 4, 0, 0]} />
+              <Bar dataKey="value" fill="#6366F1" radius={[4, 4, 0, 0]} />
             </BarChart>
           </ResponsiveContainer>
         )}
