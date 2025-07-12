@@ -1,3 +1,5 @@
+// src/pages/DashboardPage.jsx
+
 import React, { useEffect, useState } from "react";
 import { useDispatch, useSelector } from "react-redux";
 import {
@@ -68,6 +70,7 @@ const DashboardPage = () => {
         expenseDate.getFullYear() === today.getFullYear()
       );
     } else {
+      // ✅ Show only today's expenses by default
       return (
         expenseDate.getDate() === today.getDate() &&
         expenseDate.getMonth() === today.getMonth() &&
@@ -98,6 +101,7 @@ const DashboardPage = () => {
     <div className="min-h-screen bg-neutral-50 dark:bg-neutral-900 p-4 flex flex-col items-center">
       <Toaster />
       <div className="w-full max-w-4xl">
+        {/* Header with filters */}
         <div className="sticky top-0 z-10 bg-neutral-50/70 dark:bg-neutral-900/70 backdrop-blur-md rounded-xl shadow p-4 mb-4 flex flex-col gap-3 md:flex-row md:items-center md:justify-between">
           <div className="text-center md:text-left">
             <h1 className="text-2xl md:text-3xl font-bold text-neutral-800 dark:text-neutral-200">
@@ -109,7 +113,7 @@ const DashboardPage = () => {
                     categoryFilter ? ` in ${categoryFilter}` : ""
                   }`
                 : categoryFilter
-                ? `Today's ${categoryFilter} expenses`
+                ? `Current month ${categoryFilter} expenses`
                 : "Today's expenses"}
             </p>
           </div>
@@ -160,6 +164,7 @@ const DashboardPage = () => {
           </div>
         </div>
 
+        {/* Total */}
         <div className="bg-white dark:bg-neutral-800 rounded-xl shadow p-4">
           <p className="text-lg font-semibold text-neutral-700 dark:text-neutral-300 mb-3 text-center md:text-left">
             Total:{" "}
@@ -168,6 +173,7 @@ const DashboardPage = () => {
             </span>
           </p>
 
+          {/* Expenses List */}
           {currentExpenses.length === 0 ? (
             <p className="text-center text-neutral-500 dark:text-neutral-400">
               No expenses found.
@@ -207,6 +213,7 @@ const DashboardPage = () => {
             </ul>
           )}
 
+          {/* Pagination */}
           {filteredExpenses.length > expensesPerPage && (
             <div className="flex justify-center mt-4 gap-2 flex-wrap">
               {Array.from(
@@ -231,13 +238,19 @@ const DashboardPage = () => {
           )}
         </div>
 
+        {/* Charts */}
         <div className="mt-6 bg-white dark:bg-neutral-800 rounded-xl shadow p-4">
           <ExpenseCharts
-            expenses={filteredExpenses}
-            filter={isDateFilterApplied ? { startDate, endDate } : null}
+            expenses={expenses}
+            filter={{
+              category: categoryFilter,
+              startDate: startDate,
+              endDate: endDate,
+            }}
           />
         </div>
 
+        {/* Footer */}
         <footer className="mt-8 text-center text-xs text-neutral-500 dark:text-neutral-400">
           Expense Tracker © {new Date().getFullYear()} | Built by Abhay Panchal
         </footer>
