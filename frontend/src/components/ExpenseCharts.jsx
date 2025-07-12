@@ -24,13 +24,34 @@ const COLORS = [
   "#0EA5E9",
 ];
 
+const CustomTooltip = ({ active, payload, label }) => {
+  if (active && payload && payload.length) {
+    const today = new Date();
+    const fullDate = new Date(
+      today.getFullYear(),
+      today.getMonth(),
+      parseInt(label)
+    ).toLocaleDateString("en-GB", {
+      day: "2-digit",
+      month: "long",
+      year: "numeric",
+    });
+    return (
+      <div className="bg-white rounded-md shadow p-2 text-sm text-gray-800">
+        <p>{fullDate}</p>
+        <p>₹{payload[0].value.toFixed(2)}</p>
+      </div>
+    );
+  }
+  return null;
+};
+
 const ExpenseCharts = ({ expenses, filter }) => {
   const today = new Date();
   const currentYear = today.getFullYear();
   const currentMonth = today.getMonth();
   const daysInMonth = new Date(currentYear, currentMonth + 1, 0).getDate();
 
-  /** ---------------- Pie Chart Data (filter-based) ---------------- */
   const startDate = filter?.startDate ? new Date(filter.startDate) : null;
   const endDate = filter?.endDate ? new Date(filter.endDate) : null;
   const categoryFilter = filter?.category || "";
@@ -60,7 +81,6 @@ const ExpenseCharts = ({ expenses, filter }) => {
     return acc;
   }, []);
 
-  /** ---------------- Bar Chart Data (always current month) ---------------- */
   const dailyData = Array.from({ length: daysInMonth }, (_, i) => {
     const date = new Date(currentYear, currentMonth, i + 1);
     const label = (i + 1).toString();
@@ -75,7 +95,6 @@ const ExpenseCharts = ({ expenses, filter }) => {
     return { name: label, value: totalForDay };
   });
 
-  /** ---------------- Headings ---------------- */
   let headingText = `Category-wise Expenses for Today (${today.toLocaleDateString()})`;
   if (startDate && endDate) {
     headingText = `Category-wise Expenses (${startDate.toLocaleDateString()} - ${endDate.toLocaleDateString()})`;
@@ -93,10 +112,8 @@ const ExpenseCharts = ({ expenses, filter }) => {
     { month: "long" }
   )} ${currentYear}`;
 
-  /** ---------------- Component Return ---------------- */
   return (
     <div className="grid grid-cols-1 lg:grid-cols-2 gap-6 mt-6">
-      {/* Pie Chart */}
       <div className="bg-white rounded-2xl shadow-lg p-6 flex flex-col items-center">
         <h2 className="text-center text-lg font-semibold text-gray-800 mb-4">
           {headingText}
@@ -128,7 +145,6 @@ const ExpenseCharts = ({ expenses, filter }) => {
         )}
       </div>
 
-      {/* Bar Chart */}
       <div className="bg-white rounded-2xl shadow-lg p-6 flex flex-col items-center">
         <h2 className="text-center text-lg font-semibold text-gray-800 mb-4">
           {trendHeadingText}
@@ -149,7 +165,7 @@ const ExpenseCharts = ({ expenses, filter }) => {
                 interval={4}
               />
               <YAxis stroke="#6b7280" tick={{ fontSize: 11 }} />
-              <Tooltip />
+              <Tooltip content={<CustomTooltip />} />
               <Bar
                 dataKey="value"
                 fill="#6366F1"
