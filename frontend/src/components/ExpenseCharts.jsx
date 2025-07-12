@@ -1,3 +1,5 @@
+// src/components/ExpenseCharts.jsx
+
 import React from "react";
 import {
   PieChart,
@@ -35,11 +37,9 @@ const ExpenseCharts = ({ expenses, filter }) => {
 
   const pieChartExpenses = expenses.filter((expense) => {
     const expenseDate = new Date(expense.date);
-
     if (startDate && expenseDate < startDate) return false;
     if (endDate && expenseDate > endDate) return false;
     if (categoryFilter && expense.category !== categoryFilter) return false;
-
     if (!startDate && !endDate && !categoryFilter) {
       return (
         expenseDate.getFullYear() === today.getFullYear() &&
@@ -63,11 +63,7 @@ const ExpenseCharts = ({ expenses, filter }) => {
   /** ---------------- Bar Chart Data (always current month) ---------------- */
   const dailyData = Array.from({ length: daysInMonth }, (_, i) => {
     const date = new Date(currentYear, currentMonth, i + 1);
-    const label = date.toLocaleDateString("en-GB", {
-      day: "2-digit",
-      month: "short",
-    });
-
+    const label = (i + 1).toString();
     const totalForDay = expenses.reduce((sum, expense) => {
       const expenseDate = new Date(expense.date);
       return expenseDate.getFullYear() === currentYear &&
@@ -76,7 +72,6 @@ const ExpenseCharts = ({ expenses, filter }) => {
         ? sum + expense.amount
         : sum;
     }, 0);
-
     return { name: label, value: totalForDay };
   });
 
@@ -100,16 +95,16 @@ const ExpenseCharts = ({ expenses, filter }) => {
 
   /** ---------------- Component Return ---------------- */
   return (
-    <div className="grid grid-cols-1 md:grid-cols-2 gap-6 mt-6">
+    <div className="grid grid-cols-1 lg:grid-cols-2 gap-6 mt-6">
       {/* Pie Chart */}
-      <div className="bg-white rounded-xl shadow p-4 sm:p-6">
-        <h2 className="text-center text-base sm:text-lg font-semibold text-gray-800 mb-4">
+      <div className="bg-white rounded-2xl shadow-lg p-6 flex flex-col items-center">
+        <h2 className="text-center text-lg font-semibold text-gray-800 mb-4">
           {headingText}
         </h2>
         {categoryData.length === 0 ? (
           <p className="text-center text-gray-500">No data to display</p>
         ) : (
-          <ResponsiveContainer width="100%" height={280}>
+          <ResponsiveContainer width="100%" height={300}>
             <PieChart>
               <Pie
                 data={categoryData}
@@ -117,7 +112,7 @@ const ExpenseCharts = ({ expenses, filter }) => {
                 nameKey="name"
                 cx="50%"
                 cy="50%"
-                outerRadius={90}
+                outerRadius={100}
                 label
               >
                 {categoryData.map((_, index) => (
@@ -134,31 +129,35 @@ const ExpenseCharts = ({ expenses, filter }) => {
       </div>
 
       {/* Bar Chart */}
-      <div className="bg-white rounded-xl shadow p-4 sm:p-6 overflow-x-auto">
-        <h2 className="text-center text-base sm:text-lg font-semibold text-gray-800 mb-4">
+      <div className="bg-white rounded-2xl shadow-lg p-6 flex flex-col items-center">
+        <h2 className="text-center text-lg font-semibold text-gray-800 mb-4">
           {trendHeadingText}
         </h2>
         {dailyData.every((item) => item.value === 0) ? (
           <p className="text-center text-gray-500">No data to display</p>
         ) : (
-          <div className="min-w-[500px] md:min-w-0">
-            <ResponsiveContainer width="100%" height={320}>
-              <BarChart data={dailyData}>
-                <CartesianGrid strokeDasharray="3 3" stroke="#e5e7eb" />
-                <XAxis
-                  dataKey="name"
-                  stroke="#9ca3af"
-                  tick={{ fontSize: 12 }}
-                  height={30}
-                  interval={4} // Show every 5th label for clarity
-                />
-
-                <YAxis stroke="#9ca3af" />
-                <Tooltip />
-                <Bar dataKey="value" fill="#6366F1" radius={[4, 4, 0, 0]} />
-              </BarChart>
-            </ResponsiveContainer>
-          </div>
+          <ResponsiveContainer width="100%" height={300}>
+            <BarChart
+              data={dailyData}
+              margin={{ top: 10, right: 30, left: 0, bottom: 10 }}
+            >
+              <CartesianGrid strokeDasharray="3 3" stroke="#e5e7eb" />
+              <XAxis
+                dataKey="name"
+                stroke="#6b7280"
+                tick={{ fontSize: 11 }}
+                interval={4}
+              />
+              <YAxis stroke="#6b7280" tick={{ fontSize: 11 }} />
+              <Tooltip />
+              <Bar
+                dataKey="value"
+                fill="#6366F1"
+                radius={[8, 8, 0, 0]}
+                barSize={20}
+              />
+            </BarChart>
+          </ResponsiveContainer>
         )}
       </div>
     </div>
