@@ -3,6 +3,7 @@ import { BrowserRouter as Router, Routes, Route } from "react-router-dom";
 import Header from "./components/Header";
 import ProtectedRoute from "./components/ProtectedRoute";
 import Loader from "./components/Loader";
+import useAuthValidation from "./features/auth/authValidation"; // ✅ import the hook
 
 const LoginPage = lazy(() => import("./pages/LoginPage"));
 const RegisterPage = lazy(() => import("./pages/RegisterPage"));
@@ -10,9 +11,11 @@ const DashboardPage = lazy(() => import("./pages/DashboardPage"));
 const AddExpensePage = lazy(() => import("./pages/AddExpensePage"));
 const ExpensePage = lazy(() => import("./pages/ExpensesPage"));
 
-const App = () => {
+const AppContent = () => {
+  useAuthValidation(); // ✅ NOW inside Router context, fixes error
+
   return (
-    <Router future={{ v7_startTransition: true, v7_relativeSplatPath: true }}>
+    <>
       <Header />
       <main className="container mx-auto p-4">
         <Suspense fallback={<Loader />}>
@@ -55,6 +58,14 @@ const App = () => {
           </Routes>
         </Suspense>
       </main>
+    </>
+  );
+};
+
+const App = () => {
+  return (
+    <Router future={{ v7_startTransition: true, v7_relativeSplatPath: true }}>
+      <AppContent />
     </Router>
   );
 };

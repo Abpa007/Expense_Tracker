@@ -52,6 +52,7 @@ const authSlice = createSlice({
       .addCase(register.fulfilled, (state, action) => {
         state.loading = false;
         state.user = action.payload;
+        localStorage.setItem("user", JSON.stringify(action.payload)); // ✅ store user
       })
       .addCase(register.rejected, (state, action) => {
         state.loading = false;
@@ -64,6 +65,7 @@ const authSlice = createSlice({
       .addCase(login.fulfilled, (state, action) => {
         state.loading = false;
         state.user = action.payload;
+        localStorage.setItem("user", JSON.stringify(action.payload)); // ✅ store user
       })
       .addCase(login.rejected, (state, action) => {
         state.loading = false;
@@ -71,6 +73,7 @@ const authSlice = createSlice({
       })
       .addCase(logout.fulfilled, (state) => {
         state.user = null;
+        localStorage.removeItem("user"); // ✅ clear user on logout
       });
   },
 });

@@ -82,4 +82,29 @@ const getUserProfile = async (req, res) => {
   }
 };
 
-module.exports = { registerUser, loginUser, getUserProfile };
+// @desc    Validate token
+// @route   GET /api/auth/validate
+// @access  Private
+const validateToken = async (req, res) => {
+  try {
+    res.status(200).json({
+      success: true,
+      message: "Token is valid",
+      user: {
+        _id: req.user._id,
+        name: req.user.name,
+        email: req.user.email,
+      },
+    });
+  } catch (error) {
+    console.error(error);
+    res.status(500).json({ message: "Server error" });
+  }
+};
+
+module.exports = {
+  registerUser,
+  loginUser,
+  getUserProfile,
+  validateToken, // ✅ add here
+};
