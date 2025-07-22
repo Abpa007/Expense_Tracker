@@ -252,7 +252,8 @@ const DashboardPage = () => {
         </div>
 
         <footer className="mt-8 text-center text-xs text-gray-500">
-          Expense Tracker © {new Date().getFullYear()} | Built by Abhay Panchal
+          Expense Tracker © Abhay Panchal {new Date().getFullYear()} | Built by
+          Abhay Panchal
         </footer>
       </div>
 
