@@ -9,8 +9,8 @@ A **clean, production-level Expense Tracker** built using the **MERN Stack + Red
 
 ## 🌐 Live Demo
 
-- **Frontend:** [View Live Frontend](https://expense-tracker-frontend-nu-seven.vercel.app)
-- **Backend:** [View Live Backend](https://expense-tracker-backend-x0zj.onrender.com)
+- **Frontend:** [View Live Frontend](https://expense-tracker-frontend-nu-seven.vercel.app) https://expense-tracker-frontend-nu-seven.vercel.app
+- **Backend:** [View Live Backend](https://expense-tracker-backend-x0zj.onrender.com) https://expense-tracker-backend-x0zj.onrender.com
 
 ---
 
