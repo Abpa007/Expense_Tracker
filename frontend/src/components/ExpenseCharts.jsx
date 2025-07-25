@@ -98,19 +98,27 @@ const ExpenseCharts = ({ expenses, filter }) => {
     }, 0);
     return { name: label, value: totalForDay };
   });
+// Dynamic Pie Chart heading logic
+let headingText = "";
 
-  // Dynamic headings
-  let headingText = `Category-wise Expenses for Today (${today.toLocaleDateString()})`;
+if (!startDate && !endDate && !categoryFilter) {
+  headingText = `Category-wise Distribution for Today (${today.toLocaleDateString()})`;
+} else if (!startDate && !endDate && categoryFilter) {
+  headingText = `Category-wise Distribution in ${categoryFilter}`;
+} else {
+  headingText = `Category-wise Distribution`;
   if (startDate && endDate) {
-    headingText = `Category-wise Expenses (${startDate.toLocaleDateString()} - ${endDate.toLocaleDateString()})`;
-  } else if (!startDate && endDate) {
-    headingText = `Category-wise Expenses till ${endDate.toLocaleDateString()}`;
+    headingText += ` (${startDate.toLocaleDateString()} - ${endDate.toLocaleDateString()})`;
   } else if (startDate && !endDate) {
-    headingText = `Category-wise Expenses from ${startDate.toLocaleDateString()}`;
+    headingText += ` from ${startDate.toLocaleDateString()}`;
+  } else if (!startDate && endDate) {
+    headingText += ` till ${endDate.toLocaleDateString()}`;
   }
   if (categoryFilter) {
     headingText += ` in ${categoryFilter}`;
   }
+}
+
 
   const trendHeadingText = `Expense Trend for ${today.toLocaleString(
     "default",
